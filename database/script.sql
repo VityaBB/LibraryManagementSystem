@@ -219,7 +219,6 @@ INSERT INTO reviews (book_id, user_id, rating, comment) VALUES
 (3, 1, 5, 'Актуально до сих пор.'),
 (4, 2, 5, 'Тёплая и трогательная история.');
 
--- Запрос с динамическим вычислением доступных копий
 SELECT 
     b.title,
     STRING_AGG(DISTINCT a.last_name, ', ') AS authors,
@@ -237,7 +236,6 @@ LEFT JOIN loans l ON b.id = l.book_id AND l.status IN ('ACTIVE', 'OVERDUE')
 GROUP BY b.id, p.name, b.total_copies
 ORDER BY b.title;
 
--- Запрос активных выдач
 SELECT 
     l.id,
     u.first_name || ' ' || u.last_name AS reader,
