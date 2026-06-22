@@ -40,13 +40,11 @@ public class BookDAO {
     }
 
     public List<Book> getAllBooks() throws SQLException {
-        String sql = "SELECT " + BOOK_COLUMNS + " FROM books ORDER BY id";
-        return executeQuery(sql, new Object[0]);
+        return executeQuery("SELECT " + BOOK_COLUMNS + " FROM books ORDER BY id", new Object[0]);
     }
 
     public Book getBookById(int id) throws SQLException {
-        String sql = "SELECT " + BOOK_COLUMNS + " FROM books WHERE id = ?";
-        List<Book> books = executeQuery(sql, new Object[]{id});
+        List<Book> books = executeQuery("SELECT " + BOOK_COLUMNS + " FROM books WHERE id = ?", new Object[]{id});
         return books.isEmpty() ? null : books.get(0);
     }
 
@@ -66,20 +64,7 @@ public class BookDAO {
         sql.append("WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
-        
-        if (title != null && !title.trim().isEmpty()) {
-            sql.append("AND b.title ILIKE ? ");
-            params.add("%" + title + "%");
-        }
-        if (author != null && !author.trim().isEmpty()) {
-            sql.append("AND (a.first_name ILIKE ? OR a.last_name ILIKE ?) ");
-            params.add("%" + author + "%");
-            params.add("%" + author + "%");
-        }
-        if (genre != null && !genre.trim().isEmpty()) {
-            sql.append("AND g.name = ? ");
-            params.add(genre);
-        }
+        addSearchParams(sql, params, title, author, genre);
         
         sql.append("GROUP BY b.id, p.name ");
         sql.append("ORDER BY b.id ");
@@ -113,14 +98,7 @@ public class BookDAO {
     }
 
     public void deleteBook(int id) throws SQLException {
-        String sql = "DELETE FROM books WHERE id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
+        executeUpdate("DELETE FROM books WHERE id = ?", new Object[]{id});
     }
 
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
@@ -141,10 +119,7 @@ public class BookDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            for (int i = 0; i < params.length; i++) {
-                stmt.setObject(i + 1, params[i]);
-            }
-            
+            setParameters(stmt, params);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 books.add(mapResultSetToBook(rs));
@@ -158,10 +133,7 @@ public class BookDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            for (int i = 0; i < params.size(); i++) {
-                stmt.setObject(i + 1, params.get(i));
-            }
-            
+            setParameters(stmt, params);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 books.add(mapResultSetToBook(rs));
@@ -170,17 +142,19 @@ public class BookDAO {
         return books;
     }
 
-    public int countBooks(String title, String author, String genre) throws SQLException {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(DISTINCT b.id) FROM books b ");
-        sql.append("LEFT JOIN book_authors ba ON b.id = ba.book_id ");
-        sql.append("LEFT JOIN authors a ON ba.author_id = a.id ");
-        sql.append("LEFT JOIN book_genres bg ON b.id = bg.book_id ");
-        sql.append("LEFT JOIN genres g ON bg.genre_id = g.id ");
-        sql.append("WHERE 1=1 ");
-        
-        List<Object> params = new ArrayList<>();
-        
+    private void setParameters(PreparedStatement stmt, Object[] params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            stmt.setObject(i + 1, params[i]);
+        }
+    }
+
+    private void setParameters(PreparedStatement stmt, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            stmt.setObject(i + 1, params.get(i));
+        }
+    }
+
+    private void addSearchParams(StringBuilder sql, List<Object> params, String title, String author, String genre) {
         if (title != null && !title.trim().isEmpty()) {
             sql.append("AND b.title ILIKE ? ");
             params.add("%" + title + "%");
@@ -194,14 +168,24 @@ public class BookDAO {
             sql.append("AND g.name = ? ");
             params.add(genre);
         }
+    }
+
+    public int countBooks(String title, String author, String genre) throws SQLException {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(DISTINCT b.id) FROM books b ");
+        sql.append("LEFT JOIN book_authors ba ON b.id = ba.book_id ");
+        sql.append("LEFT JOIN authors a ON ba.author_id = a.id ");
+        sql.append("LEFT JOIN book_genres bg ON b.id = bg.book_id ");
+        sql.append("LEFT JOIN genres g ON bg.genre_id = g.id ");
+        sql.append("WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
+        addSearchParams(sql, params, title, author, genre);
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             
-            for (int i = 0; i < params.size(); i++) {
-                stmt.setObject(i + 1, params.get(i));
-            }
-            
+            setParameters(stmt, params);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -214,9 +198,7 @@ public class BookDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            for (int i = 0; i < params.length; i++) {
-                stmt.setObject(i + 1, params[i]);
-            }
+            setParameters(stmt, params);
             stmt.executeUpdate();
         }
     }
