@@ -9,7 +9,7 @@ import java.util.List;
 public class GenreDAO {
 
     public List<Genre> getAllGenres() throws SQLException {
-        String sql = "SELECT * FROM genres ORDER BY name";
+        String sql = "SELECT id, name, description FROM genres ORDER BY name";
         List<Genre> genres = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -26,7 +26,7 @@ public class GenreDAO {
     }
 
     public Genre getGenreById(int id) throws SQLException {
-        String sql = "SELECT * FROM genres WHERE id = ?";
+        String sql = "SELECT id, name, description FROM genres WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);

@@ -1,4 +1,4 @@
-package com.library.dao;
+ackage com.library.dao;
 
 import com.library.DatabaseConnection;
 import com.library.models.Publisher;
@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PublisherDAO {
-    
     
     public void addPublisher(Publisher publisher) throws SQLException {
         String sql = "INSERT INTO publishers (name, address, phone, email, website) VALUES (?, ?, ?, ?, ?)";
@@ -31,7 +30,7 @@ public class PublisherDAO {
     }
 
     public List<Publisher> getAllPublishers() throws SQLException {
-        String sql = "SELECT * FROM publishers ORDER BY name";
+        String sql = "SELECT id, name, address, phone, email, website FROM publishers ORDER BY name";
         List<Publisher> publishers = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -46,7 +45,7 @@ public class PublisherDAO {
     }
 
     public Publisher getPublisherById(int id) throws SQLException {
-        String sql = "SELECT * FROM publishers WHERE id = ?";
+        String sql = "SELECT id, name, address, phone, email, website FROM publishers WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -62,7 +61,7 @@ public class PublisherDAO {
     }
 
     public Publisher getPublisherByName(String name) throws SQLException {
-        String sql = "SELECT * FROM publishers WHERE name = ?";
+        String sql = "SELECT id, name, address, phone, email, website FROM publishers WHERE name = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -104,7 +103,6 @@ public class PublisherDAO {
             stmt.executeUpdate();
         }
     }
-
 
     private Publisher mapResultSetToPublisher(ResultSet rs) throws SQLException {
         Publisher publisher = new Publisher();

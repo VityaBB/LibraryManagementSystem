@@ -20,7 +20,6 @@ public class LoanDAO {
             stmt.setInt(1, loan.getBookId());
             stmt.setInt(2, loan.getUserId());
             
-            // Преобразование строки в java.sql.Date
             if (loan.getLoanDate() != null) {
                 stmt.setDate(3, java.sql.Date.valueOf(loan.getLoanDate()));
             } else {
@@ -45,7 +44,7 @@ public class LoanDAO {
     }
 
     public List<Loan> getAllLoans() throws SQLException {
-        String sql = "SELECT * FROM loans ORDER BY loan_date DESC";
+        String sql = "SELECT id, book_id, user_id, loan_date, due_date, return_date, status, fine_amount FROM loans ORDER BY loan_date DESC";
         List<Loan> loans = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -60,7 +59,7 @@ public class LoanDAO {
     }
 
     public List<Loan> getActiveLoans() throws SQLException {
-        String sql = "SELECT * FROM loans WHERE status = 'ACTIVE' ORDER BY due_date";
+        String sql = "SELECT id, book_id, user_id, loan_date, due_date, return_date, status, fine_amount FROM loans WHERE status = 'ACTIVE' ORDER BY due_date";
         List<Loan> loans = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -75,7 +74,7 @@ public class LoanDAO {
     }
 
     public List<Loan> getLoansByUserId(int userId) throws SQLException {
-        String sql = "SELECT * FROM loans WHERE user_id = ? ORDER BY loan_date DESC";
+        String sql = "SELECT id, book_id, user_id, loan_date, due_date, return_date, status, fine_amount FROM loans WHERE user_id = ? ORDER BY loan_date DESC";
         List<Loan> loans = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -92,7 +91,7 @@ public class LoanDAO {
     }
 
     public List<Loan> getLoansByBookId(int bookId) throws SQLException {
-        String sql = "SELECT * FROM loans WHERE book_id = ? ORDER BY loan_date DESC";
+        String sql = "SELECT id, book_id, user_id, loan_date, due_date, return_date, status, fine_amount FROM loans WHERE book_id = ? ORDER BY loan_date DESC";
         List<Loan> loans = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -108,16 +107,17 @@ public class LoanDAO {
         return loans;
     }
 
-   public void returnBook(int loanId, double fineAmount) throws SQLException {
-    String sql = "UPDATE loans SET status = 'RETURNED', return_date = CURRENT_DATE, fine_amount = ? WHERE id = ?";
-    
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setDouble(1, fineAmount);
-        stmt.setInt(2, loanId);
-        stmt.executeUpdate();
+    public void returnBook(int loanId, double fineAmount) throws SQLException {
+        String sql = "UPDATE loans SET status = 'RETURNED', return_date = CURRENT_DATE, fine_amount = ? WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, fineAmount);
+            stmt.setInt(2, loanId);
+            stmt.executeUpdate();
+        }
     }
-}
+
     public void updateLoan(Loan loan) throws SQLException {
         String sql = "UPDATE loans SET book_id = ?, user_id = ?, loan_date = ?, due_date = ?, " +
                      "return_date = ?, status = ?, fine_amount = ? WHERE id = ?";
@@ -163,7 +163,7 @@ public class LoanDAO {
     }
 
     public Loan getLoanById(int id) throws SQLException {
-        String sql = "SELECT * FROM loans WHERE id = ?";
+        String sql = "SELECT id, book_id, user_id, loan_date, due_date, return_date, status, fine_amount FROM loans WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -176,9 +176,8 @@ public class LoanDAO {
         return null;
     }
 
-
     public List<Loan> getActiveLoansByUserAndBook(int userId, int bookId) throws SQLException {
-        String sql = "SELECT * FROM loans WHERE user_id = ? AND book_id = ? AND status IN ('ACTIVE', 'OVERDUE')";
+        String sql = "SELECT id, book_id, user_id, loan_date, due_date, return_date, status, fine_amount FROM loans WHERE user_id = ? AND book_id = ? AND status IN ('ACTIVE', 'OVERDUE')";
         List<Loan> loans = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -193,9 +192,8 @@ public class LoanDAO {
         return loans;
     }
 
-
     public List<User> getUsersByBookId(int bookId) throws SQLException {
-        String sql = "SELECT u.* FROM users u " +
+        String sql = "SELECT u.id, u.email, u.password_hash, u.first_name, u.last_name, u.phone, u.address, u.registration_date, u.is_active, u.role FROM users u " +
                     "JOIN loans l ON u.id = l.user_id " +
                     "WHERE l.book_id = ? AND l.status IN ('ACTIVE', 'OVERDUE')";
         List<User> users = new ArrayList<>();
@@ -220,9 +218,8 @@ public class LoanDAO {
         return users;
     }
 
-
     public List<Book> getActiveBooksByUserId(int userId) throws SQLException {
-        String sql = "SELECT b.* FROM books b " +
+        String sql = "SELECT b.id, b.title, b.isbn, b.publication_year, b.publisher_id, b.total_copies, b.page_count, b.description FROM books b " +
                     "JOIN loans l ON b.id = l.book_id " +
                     "WHERE l.user_id = ? AND l.status IN ('ACTIVE', 'OVERDUE')";
         List<Book> books = new ArrayList<>();
@@ -246,5 +243,4 @@ public class LoanDAO {
         }
         return books;
     }
-
 }

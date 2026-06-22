@@ -33,7 +33,7 @@ public class UserDAO {
     }
 
     public List<User> getAllUsers() throws SQLException {
-        String sql = "SELECT * FROM users ORDER BY last_name, first_name";
+        String sql = "SELECT id, email, password_hash, first_name, last_name, phone, address, registration_date, is_active, role FROM users ORDER BY last_name, first_name";
         List<User> users = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -48,7 +48,7 @@ public class UserDAO {
     }
 
     public User getUserById(int id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE id = ?";
+        String sql = "SELECT id, email, password_hash, first_name, last_name, phone, address, registration_date, is_active, role FROM users WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -64,7 +64,7 @@ public class UserDAO {
     }
 
     public User getUserByEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM users WHERE email = ?";
+        String sql = "SELECT id, email, password_hash, first_name, last_name, phone, address, registration_date, is_active, role FROM users WHERE email = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

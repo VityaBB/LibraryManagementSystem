@@ -1,6 +1,14 @@
 package com.library.menu;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ConsoleUtils {
+    private static final Logger LOGGER = Logger.getLogger(ConsoleUtils.class.getName());
+    
+    private ConsoleUtils() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
     
     public static void clearScreen() {
         try {
@@ -11,30 +19,30 @@ public class ConsoleUtils {
                 System.out.flush();
             }
         } catch (Exception e) {
-            // Ignore
+            Thread.currentThread().interrupt();
         }
     }
 
     public static void printHeader(String title) {
-        System.out.println("\n╔══════════════════════════════════════════════╗");
-        System.out.printf("║   %-41s║%n", title);
-        System.out.println("╚══════════════════════════════════════════════╝");
+        LOGGER.info("\n╔══════════════════════════════════════════════╗");
+        LOGGER.info(String.format("║   %-41s║", title));
+        LOGGER.info("╚══════════════════════════════════════════════╝");
     }
 
     public static void printSeparator() {
-        System.out.println("──────────────────────────────────────────────────");
+        LOGGER.info("──────────────────────────────────────────────────");
     }
 
     public static void waitForEnter() {
-        System.out.print("Нажмите Enter для продолжения...");
+        LOGGER.info("Press Enter to continue...");
         try {
             System.in.read();
         } catch (Exception e) {
-            // Ignore
+            Thread.currentThread().interrupt();
         }
     }
 
-     public static String centerString(String str, int width) {
+    public static String centerString(String str, int width) {
         if (str.length() >= width) {
             return str;
         }
