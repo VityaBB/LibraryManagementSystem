@@ -1,4 +1,4 @@
-ackage com.library.dao;
+package com.library.dao;
 
 import com.library.DatabaseConnection;
 import com.library.models.Publisher;

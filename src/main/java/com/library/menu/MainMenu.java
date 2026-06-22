@@ -5,28 +5,10 @@ import com.library.dao.*;
 import com.library.models.*;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MainMenu {
-    private static final Logger LOGGER = Logger.getLogger(MainMenu.class.getName());
-    private static final String HEADER_TOP = "╔══════════════════════════════════════════════╗";
-    private static final String HEADER_MID = "╠══════════════════════════════════════════════╣";
-    private static final String HEADER_BOTTOM = "╚══════════════════════════════════════════════╝";
-    private static final String MENU_BACK = "║  0.  Назад                                   ║";
-    private static final String PROMPT_ACTION = "Выберите действие: ";
-    private static final String ERROR_DB = "Ошибка БД: ";
-    private static final String LABEL_ID = " ID: ";
-    private static final String NOT_FOUND = " не найден";
-    private static final String LABEL_TOTAL_COPIES = "Всего экземпляров: ";
-    private static final String LABEL_GENRE_ID = " Жанр ID ";
-    private static final String LABEL_AUTHOR_ID = " Автор ID ";
-    private static final String ADDED = " добавлен";
-    private static final String REMOVED = " удален";
-
     private final Scanner scanner = new Scanner(System.in);
     private final BookDAO bookDAO = new BookDAO();
     private final AuthorDAO authorDAO = new AuthorDAO();
@@ -37,11 +19,11 @@ public class MainMenu {
 
     public void start() {
         DatabaseConnection.testConnection();
-        LOGGER.info("");
+        System.out.println();
 
         while (true) {
             printMainMenu();
-            int choice = readInt(PROMPT_ACTION, 0, 6);
+            int choice = readInt("Выберите действие: ", 0, 6);
 
             switch (choice) {
                 case 1 -> manageBooks();
@@ -51,42 +33,42 @@ public class MainMenu {
                 case 5 -> managePublishers();
                 case 6 -> searchBooks();
                 case 0 -> {
-                    LOGGER.info("\nДо свидания!");
+                    System.out.println("\nДо свидания!");
                     return;
                 }
-                default -> LOGGER.warning("Неверный выбор");
             }
         }
     }
 
     private void printMainMenu() {
-        LOGGER.info("\n" + HEADER_TOP);
-        LOGGER.info("║               ГЛАВНОЕ МЕНЮ                   ║");
-        LOGGER.info(HEADER_MID);
-        LOGGER.info("║  1.  Управление книгами                      ║");
-        LOGGER.info("║  2.  Управление авторами                     ║");
-        LOGGER.info("║  3.  Управление пользователями               ║");
-        LOGGER.info("║  4.  Управление выдачами                     ║");
-        LOGGER.info("║  5.  Управление издателями                   ║");
-        LOGGER.info("║  6.  Поиск книг                              ║");
-        LOGGER.info("║  0.  Выход                                   ║");
-        LOGGER.info(HEADER_BOTTOM);
+        System.out.println("\n╔══════════════════════════════════════════════╗");
+        System.out.println("║               ГЛАВНОЕ МЕНЮ                   ║");
+        System.out.println("╠══════════════════════════════════════════════╣");
+        System.out.println("║  1.  Управление книгами                      ║");
+        System.out.println("║  2.  Управление авторами                     ║");
+        System.out.println("║  3.  Управление пользователями               ║");
+        System.out.println("║  4.  Управление выдачами                     ║");
+        System.out.println("║  5.  Управление издателями                   ║");
+        System.out.println("║  6.  Поиск книг                              ║");
+        System.out.println("║  0.  Выход                                   ║");
+        System.out.println("╚══════════════════════════════════════════════╝");
     }
 
+    // ==================== BOOKS ====================
     private void manageBooks() {
         while (true) {
-            LOGGER.info("\n" + HEADER_TOP);
-            LOGGER.info("║            УПРАВЛЕНИЕ КНИГАМИ                ║");
-            LOGGER.info(HEADER_MID);
-            LOGGER.info("║  1.  Добавить книгу                          ║");
-            LOGGER.info("║  2.  Список всех книг                        ║");
-            LOGGER.info("║  3.  Найти книгу по ID                       ║");
-            LOGGER.info("║  4.  Обновить книгу                          ║");
-            LOGGER.info("║  5.  Удалить книгу                           ║");
-            LOGGER.info(MENU_BACK);
-            LOGGER.info(HEADER_BOTTOM);
+            System.out.println("\n╔══════════════════════════════════════════════╗");
+            System.out.println("║            УПРАВЛЕНИЕ КНИГАМИ                ║");
+            System.out.println("╠══════════════════════════════════════════════╣");
+            System.out.println("║  1.  Добавить книгу                          ║");
+            System.out.println("║  2.  Список всех книг                        ║");
+            System.out.println("║  3.  Найти книгу по ID                       ║");
+            System.out.println("║  4.  Обновить книгу                          ║");
+            System.out.println("║  5.  Удалить книгу                           ║");
+            System.out.println("║  0.  Назад                                   ║");
+            System.out.println("╚══════════════════════════════════════════════╝");
 
-            int choice = readInt(PROMPT_ACTION, 0, 5);
+            int choice = readInt("Выберите действие: ", 0, 5);
             try {
                 switch (choice) {
                     case 1 -> addBook();
@@ -95,52 +77,51 @@ public class MainMenu {
                     case 4 -> updateBook();
                     case 5 -> deleteBook();
                     case 0 -> { return; }
-                    default -> LOGGER.warning("Неверный выбор");
                 }
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, ERROR_DB + e.getMessage(), e);
+                System.err.println("Ошибка БД: " + e.getMessage());
             }
         }
     }
 
     private void addBook() throws SQLException {
-        LOGGER.info("\nДОБАВЛЕНИЕ НОВОЙ КНИГИ");
+        System.out.println("\nДОБАВЛЕНИЕ НОВОЙ КНИГИ");
 
-        LOGGER.info("Список доступных издателей:");
+        System.out.println("Список доступных издателей:");
         List<Publisher> publishers = publisherDAO.getAllPublishers();
         if (publishers.isEmpty()) {
-            LOGGER.info("В базе нет издателей!");
-            LOGGER.info("Сначала добавьте издателя через меню 'Управление издателями'");
+            System.out.println("В базе нет издателей!");
+            System.out.println("Сначала добавьте издателя через меню 'Управление издателями'");
             return;
         }
         for (Publisher p : publishers) {
-            LOGGER.info("  ID: " + p.getId() + " | " + p.getName());
+            System.out.println("  ID: " + p.getId() + " | " + p.getName());
         }
-        LOGGER.info("");
+        System.out.println();
 
-        LOGGER.info("Список доступных жанров:");
+        System.out.println("Список доступных жанров:");
         List<Genre> genres = genreDAO.getAllGenres();
         if (genres.isEmpty()) {
-            LOGGER.info("В базе нет жанров!");
-            LOGGER.info("Сначала добавьте жанры через SQL");
+            System.out.println("В базе нет жанров!");
+            System.out.println("Сначала добавьте жанры через SQL");
             return;
         }
         for (Genre g : genres) {
-            LOGGER.info("  ID: " + g.getId() + " | " + g.getName());
+            System.out.println("  ID: " + g.getId() + " | " + g.getName());
         }
-        LOGGER.info("");
+        System.out.println();
 
-        LOGGER.info("Список доступных авторов:");
+        System.out.println("Список доступных авторов:");
         List<Author> authors = authorDAO.getAllAuthors();
         if (authors.isEmpty()) {
-            LOGGER.info("В базе нет авторов!");
-            LOGGER.info("Сначала добавьте авторов через меню 'Управление авторами'");
+            System.out.println("В базе нет авторов!");
+            System.out.println("Сначала добавьте авторов через меню 'Управление авторами'");
             return;
         }
         for (Author a : authors) {
-            LOGGER.info("  ID: " + a.getId() + " | " + a.getFullName());
+            System.out.println("  ID: " + a.getId() + " | " + a.getFullName());
         }
-        LOGGER.info("");
+        System.out.println();
 
         Book book = new Book();
         book.setTitle(readString("Название: "));
@@ -150,7 +131,7 @@ public class MainMenu {
         int publisherId = readInt("ID издательства: ", 1, Integer.MAX_VALUE);
         Publisher publisher = publisherDAO.getPublisherById(publisherId);
         if (publisher == null) {
-            LOGGER.info("Издатель с ID " + publisherId + NOT_FOUND);
+            System.out.println("Издатель с ID " + publisherId + " не найден");
             return;
         }
         book.setPublisherId(publisherId);
@@ -160,23 +141,23 @@ public class MainMenu {
         book.setDescription(readString("Описание: "));
 
         bookDAO.addBook(book);
-        LOGGER.info("Книга добавлена! ID: " + book.getId());
+        System.out.println("Книга добавлена! ID: " + book.getId());
 
-        LOGGER.info("\nДобавление жанров к книге");
+        System.out.println("\nДобавление жанров к книге");
         String genreIdsInput = readString("Введите ID жанров через запятую (например: 1,2,3): ");
         if (!genreIdsInput.trim().isEmpty()) {
             for (String idStr : genreIdsInput.split(",")) {
                 try {
                     int genreId = Integer.parseInt(idStr.trim());
                     bookDAO.addBookGenre(book.getId(), genreId);
-                    LOGGER.info(LABEL_GENRE_ID + genreId + ADDED);
+                    System.out.println("  Жанр ID " + genreId + " добавлен");
                 } catch (NumberFormatException e) {
-                    LOGGER.info("  ID '" + idStr + "' не является числом");
+                    System.out.println("  ID '" + idStr + "' не является числом");
                 }
             }
         }
 
-        LOGGER.info("\nДобавление авторов к книге");
+        System.out.println("\nДобавление авторов к книге");
         String authorIdsInput = readString("Введите ID авторов через запятую (например: 1,2,3): ");
         if (!authorIdsInput.trim().isEmpty()) {
             int order = 1;
@@ -184,28 +165,28 @@ public class MainMenu {
                 try {
                     int authorId = Integer.parseInt(idStr.trim());
                     bookDAO.addBookAuthor(book.getId(), authorId, order);
-                    LOGGER.info(LABEL_AUTHOR_ID + authorId + ADDED + " (порядок: " + order + ")");
+                    System.out.println("  Автор ID " + authorId + " добавлен (порядок: " + order + ")");
                     order++;
                 } catch (NumberFormatException e) {
-                    LOGGER.info("  ID '" + idStr + "' не является числом");
+                    System.out.println("  ID '" + idStr + "' не является числом");
                 }
             }
         }
-        LOGGER.info("Книга добавлена!");
+        System.out.println("Книга добавлена!");
     }
 
     private void listAllBooks() throws SQLException {
-        LOGGER.info("\nСПИСОК ВСЕХ КНИГ");
+        System.out.println("\nСПИСОК ВСЕХ КНИГ");
         List<Book> books = bookDAO.getAllBooks();
         printBookList(books);
     }
 
     private void findBookById() throws SQLException {
-        LOGGER.info("\nПОИСК КНИГИ ПО ID");
+        System.out.println("\nПОИСК КНИГИ ПО ID");
         int id = readInt("Введите ID книги: ", 1, Integer.MAX_VALUE);
         Book book = bookDAO.getBookById(id);
         if (book == null) {
-            LOGGER.info("Книга с ID " + id + NOT_FOUND);
+            System.out.println("Книга с ID " + id + " не найдена");
             return;
         }
 
@@ -227,50 +208,66 @@ public class MainMenu {
         String publisherStr = "Издательство:      " + publisherInfo;
         String authorsStrFull = "Авторы:            " + authorsStr;
         String genresStrFull = "Жанры:             " + genresStr;
-        String totalStr = LABEL_TOTAL_COPIES + book.getTotalCopies();
+        String totalStr = "Всего экземпляров: " + book.getTotalCopies();
         String availableStr = "Доступно:          " + available;
         String pagesStr = "Страниц:           " + book.getPageCount();
         String descStr = "Описание:          " + (book.getDescription() != null ? book.getDescription() : "Нет описания");
 
-        printTable("ИНФОРМАЦИЯ О КНИГЕ",
+        int maxLen = Math.max(
+            Math.max(idStr.length(), titleStr.length()),
+            Math.max(isbnStr.length(), yearStr.length())
+        );
+        maxLen = Math.max(maxLen, publisherStr.length());
+        maxLen = Math.max(maxLen, authorsStrFull.length());
+        maxLen = Math.max(maxLen, genresStrFull.length());
+        maxLen = Math.max(maxLen, totalStr.length());
+        maxLen = Math.max(maxLen, availableStr.length());
+        maxLen = Math.max(maxLen, pagesStr.length());
+        maxLen = Math.max(maxLen, descStr.length());
+
+        int width = maxLen + 2;
+
+        printTable(
+            "ИНФОРМАЦИЯ О КНИГЕ",
             idStr, titleStr, isbnStr, yearStr,
             publisherStr, authorsStrFull, genresStrFull,
-            totalStr, availableStr, pagesStr, descStr);
+            totalStr, availableStr, pagesStr, descStr
+        );
     }
 
     private void updateBook() throws SQLException {
-        LOGGER.info("\nОБНОВЛЕНИЕ КНИГИ");
+        System.out.println("\nОБНОВЛЕНИЕ КНИГИ");
         int id = readInt("Введите ID книги: ", 1, Integer.MAX_VALUE);
         Book book = bookDAO.getBookById(id);
         if (book == null) {
-            LOGGER.info("Книга не найдена");
+            System.out.println("Книга не найдена");
             return;
         }
 
-        LOGGER.info("Текущие данные:");
-        LOGGER.info(book.toString());
+        System.out.println("Текущие данные:");
+        System.out.println(book.toString());
 
         List<Author> currentAuthors = bookDAO.getAuthorsByBookId(id);
-        LOGGER.info("\nТекущие авторы:");
+        System.out.println("\nТекущие авторы:");
         if (currentAuthors.isEmpty()) {
-            LOGGER.info("  (нет)");
+            System.out.println("  (нет)");
         } else {
             for (Author a : currentAuthors) {
-                LOGGER.info(LABEL_ID + a.getId() + " | " + a.getFullName());
+                System.out.println("  ID: " + a.getId() + " | " + a.getFullName());
             }
         }
 
         List<Genre> currentGenres = bookDAO.getGenresByBookId(id);
-        LOGGER.info("\nТекущие жанры:");
+        System.out.println("\nТекущие жанры:");
         if (currentGenres.isEmpty()) {
-            LOGGER.info("  (нет)");
+            System.out.println("  (нет)");
         } else {
             for (Genre g : currentGenres) {
-                LOGGER.info(LABEL_ID + g.getId() + " | " + g.getName());
+                System.out.println("  ID: " + g.getId() + " | " + g.getName());
             }
         }
 
-        LOGGER.info("\nВведите новые данные (оставьте пустым для сохранения текущего значения)");
+        System.out.println("\nВведите новые данные (оставьте пустым для сохранения текущего значения)");
 
         String title = readString("Название (" + book.getTitle() + "): ");
         if (!title.trim().isEmpty()) book.setTitle(title);
@@ -281,7 +278,7 @@ public class MainMenu {
         String year = readString("Год публикации (" + book.getPublicationYear() + "): ");
         if (!year.trim().isEmpty()) book.setPublicationYear(Integer.parseInt(year));
 
-        String copies = readString(LABEL_TOTAL_COPIES + "(" + book.getTotalCopies() + "): ");
+        String copies = readString("Всего экземпляров (" + book.getTotalCopies() + "): ");
         if (!copies.trim().isEmpty()) book.setTotalCopies(Integer.parseInt(copies));
 
         String pages = readString("Количество страниц (" + book.getPageCount() + "): ");
@@ -291,26 +288,29 @@ public class MainMenu {
         if (!description.trim().isEmpty()) book.setDescription(description);
 
         bookDAO.updateBook(book);
-        LOGGER.info("Основные данные книги обновлены!");
+        System.out.println("Основные данные книги обновлены!");
 
+        // Обновление жанров
         updateGenres(id, currentGenres);
+
+        // Обновление авторов
         updateAuthors(id, currentAuthors);
 
-        LOGGER.info("\nКнига полностью обновлена!");
+        System.out.println("\nКнига полностью обновлена!");
     }
 
     private void updateGenres(int bookId, List<Genre> currentGenres) throws SQLException {
-        LOGGER.info("\n--- УПРАВЛЕНИЕ ЖАНРАМИ ---");
-        LOGGER.info("1. Добавить жанры");
-        LOGGER.info("2. Удалить жанры");
-        LOGGER.info("3. Заменить все жанры");
-        LOGGER.info("0. Пропустить");
-        int choice = readInt(PROMPT_ACTION, 0, 3);
+        System.out.println("\n--- УПРАВЛЕНИЕ ЖАНРАМИ ---");
+        System.out.println("1. Добавить жанры");
+        System.out.println("2. Удалить жанры");
+        System.out.println("3. Заменить все жанры");
+        System.out.println("0. Пропустить");
+        int choice = readInt("Выберите действие: ", 0, 3);
 
         List<Genre> allGenres = genreDAO.getAllGenres();
-        LOGGER.info("Доступные жанры:");
+        System.out.println("Доступные жанры:");
         for (Genre g : allGenres) {
-            LOGGER.info(LABEL_ID + g.getId() + " | " + g.getName());
+            System.out.println("  ID: " + g.getId() + " | " + g.getName());
         }
 
         switch (choice) {
@@ -322,20 +322,20 @@ public class MainMenu {
                             int genreId = Integer.parseInt(idStr.trim());
                             if (currentGenres.stream().noneMatch(g -> g.getId() == genreId)) {
                                 bookDAO.addBookGenre(bookId, genreId);
-                                LOGGER.info(LABEL_GENRE_ID + genreId + ADDED);
+                                System.out.println("  Жанр ID " + genreId + " добавлен");
                             } else {
-                                LOGGER.info(LABEL_GENRE_ID + genreId + " уже есть");
+                                System.out.println("  Жанр ID " + genreId + " уже есть");
                             }
                         } catch (NumberFormatException e) {
-                            LOGGER.info("  ID '" + idStr + "' не является числом");
+                            System.out.println("  ID '" + idStr + "' не является числом");
                         }
                     }
-                    LOGGER.info("Жанры добавлены!");
+                    System.out.println("Жанры добавлены!");
                 }
             }
             case 2 -> {
                 if (currentGenres.isEmpty()) {
-                    LOGGER.info("У книги нет жанров для удаления");
+                    System.out.println("У книги нет жанров для удаления");
                 } else {
                     String removeGenres = readString("Введите ID жанров для удаления через запятую: ");
                     if (!removeGenres.trim().isEmpty()) {
@@ -343,9 +343,9 @@ public class MainMenu {
                             try {
                                 int genreId = Integer.parseInt(idStr.trim());
                                 bookDAO.deleteBookGenre(bookId, genreId);
-                                LOGGER.info(LABEL_GENRE_ID + genreId + REMOVED);
+                                System.out.println("  Жанр ID " + genreId + " удален");
                             } catch (NumberFormatException e) {
-                                LOGGER.info("  ID '" + idStr + "' не является числом");
+                                System.out.println("  ID '" + idStr + "' не является числом");
                             }
                         }
                     }
@@ -359,30 +359,30 @@ public class MainMenu {
                         try {
                             int genreId = Integer.parseInt(idStr.trim());
                             bookDAO.addBookGenre(bookId, genreId);
-                            LOGGER.info(LABEL_GENRE_ID + genreId + ADDED);
+                            System.out.println("  Жанр ID " + genreId + " добавлен");
                         } catch (NumberFormatException e) {
-                            LOGGER.info("  ID '" + idStr + "' не является числом");
+                            System.out.println("  ID '" + idStr + "' не является числом");
                         }
                     }
                 }
-                LOGGER.info("Жанры обновлены!");
+                System.out.println("Жанры обновлены!");
             }
-            default -> LOGGER.info("Жанры не изменены");
+            default -> System.out.println("Жанры не изменены");
         }
     }
 
     private void updateAuthors(int bookId, List<Author> currentAuthors) throws SQLException {
-        LOGGER.info("\n--- УПРАВЛЕНИЕ АВТОРАМИ ---");
-        LOGGER.info("1. Добавить авторов");
-        LOGGER.info("2. Удалить авторов");
-        LOGGER.info("3. Заменить всех авторов");
-        LOGGER.info("0. Пропустить");
-        int choice = readInt(PROMPT_ACTION, 0, 3);
+        System.out.println("\n--- УПРАВЛЕНИЕ АВТОРАМИ ---");
+        System.out.println("1. Добавить авторов");
+        System.out.println("2. Удалить авторов");
+        System.out.println("3. Заменить всех авторов");
+        System.out.println("0. Пропустить");
+        int choice = readInt("Выберите действие: ", 0, 3);
 
         List<Author> allAuthors = authorDAO.getAllAuthors();
-        LOGGER.info("Доступные авторы:");
+        System.out.println("Доступные авторы:");
         for (Author a : allAuthors) {
-            LOGGER.info(LABEL_ID + a.getId() + " | " + a.getFullName());
+            System.out.println("  ID: " + a.getId() + " | " + a.getFullName());
         }
 
         switch (choice) {
@@ -396,20 +396,20 @@ public class MainMenu {
                             if (currentAuthors.stream().noneMatch(a -> a.getId() == authorId)) {
                                 maxOrder++;
                                 bookDAO.addBookAuthor(bookId, authorId, maxOrder);
-                                LOGGER.info(LABEL_AUTHOR_ID + authorId + ADDED + " (порядок: " + maxOrder + ")");
+                                System.out.println("  Автор ID " + authorId + " добавлен (порядок: " + maxOrder + ")");
                             } else {
-                                LOGGER.info(LABEL_AUTHOR_ID + authorId + " уже есть");
+                                System.out.println("  Автор ID " + authorId + " уже есть");
                             }
                         } catch (NumberFormatException e) {
-                            LOGGER.info("  ID '" + idStr + "' не является числом");
+                            System.out.println("  ID '" + idStr + "' не является числом");
                         }
                     }
-                    LOGGER.info("Авторы добавлены!");
+                    System.out.println("Авторы добавлены!");
                 }
             }
             case 2 -> {
                 if (currentAuthors.isEmpty()) {
-                    LOGGER.info("У книги нет авторов для удаления");
+                    System.out.println("У книги нет авторов для удаления");
                 } else {
                     String removeAuthors = readString("Введите ID авторов для удаления через запятую: ");
                     if (!removeAuthors.trim().isEmpty()) {
@@ -417,9 +417,9 @@ public class MainMenu {
                             try {
                                 int authorId = Integer.parseInt(idStr.trim());
                                 bookDAO.deleteBookAuthor(bookId, authorId);
-                                LOGGER.info(LABEL_AUTHOR_ID + authorId + REMOVED);
+                                System.out.println("  Автор ID " + authorId + " удален");
                             } catch (NumberFormatException e) {
-                                LOGGER.info("  ID '" + idStr + "' не является числом");
+                                System.out.println("  ID '" + idStr + "' не является числом");
                             }
                         }
                     }
@@ -434,50 +434,51 @@ public class MainMenu {
                         try {
                             int authorId = Integer.parseInt(idStr.trim());
                             bookDAO.addBookAuthor(bookId, authorId, order);
-                            LOGGER.info(LABEL_AUTHOR_ID + authorId + ADDED + " (порядок: " + order + ")");
+                            System.out.println("  Автор ID " + authorId + " добавлен (порядок: " + order + ")");
                             order++;
                         } catch (NumberFormatException e) {
-                            LOGGER.info("  ID '" + idStr + "' не является числом");
+                            System.out.println("  ID '" + idStr + "' не является числом");
                         }
                     }
                 }
-                LOGGER.info("Авторы обновлены!");
+                System.out.println("Авторы обновлены!");
             }
-            default -> LOGGER.info("Авторы не изменены");
+            default -> System.out.println("Авторы не изменены");
         }
     }
 
     private void deleteBook() throws SQLException {
-        LOGGER.info("\nУДАЛЕНИЕ КНИГИ");
+        System.out.println("\nУДАЛЕНИЕ КНИГИ");
         int id = readInt("Введите ID книги: ", 1, Integer.MAX_VALUE);
         Book book = bookDAO.getBookById(id);
         if (book == null) {
-            LOGGER.info("Книга не найдена");
+            System.out.println("Книга не найдена");
             return;
         }
-        LOGGER.info("Книга: " + book.getTitle());
+        System.out.println("Книга: " + book.getTitle());
         if (readYesNo("Вы уверены? (y/n): ")) {
             bookDAO.deleteBook(id);
-            LOGGER.info("Книга удалена!");
+            System.out.println("Книга удалена!");
         } else {
-            LOGGER.info("Операция отменена");
+            System.out.println("Операция отменена");
         }
     }
 
+    // ==================== AUTHORS ====================
     private void manageAuthors() {
         while (true) {
-            LOGGER.info("\n" + HEADER_TOP);
-            LOGGER.info("║           УПРАВЛЕНИЕ АВТОРАМИ                ║");
-            LOGGER.info(HEADER_MID);
-            LOGGER.info("║  1.  Добавить автора                         ║");
-            LOGGER.info("║  2.  Список всех авторов                     ║");
-            LOGGER.info("║  3.  Найти автора по ID                      ║");
-            LOGGER.info("║  4.  Обновить автора                         ║");
-            LOGGER.info("║  5.  Удалить автора                          ║");
-            LOGGER.info(MENU_BACK);
-            LOGGER.info(HEADER_BOTTOM);
+            System.out.println("\n╔══════════════════════════════════════════════╗");
+            System.out.println("║           УПРАВЛЕНИЕ АВТОРАМИ                ║");
+            System.out.println("╠══════════════════════════════════════════════╣");
+            System.out.println("║  1.  Добавить автора                         ║");
+            System.out.println("║  2.  Список всех авторов                     ║");
+            System.out.println("║  3.  Найти автора по ID                      ║");
+            System.out.println("║  4.  Обновить автора                         ║");
+            System.out.println("║  5.  Удалить автора                          ║");
+            System.out.println("║  0.  Назад                                   ║");
+            System.out.println("╚══════════════════════════════════════════════╝");
 
-            int choice = readInt(PROMPT_ACTION, 0, 5);
+            int choice = readInt("Выберите действие: ", 0, 5);
             try {
                 switch (choice) {
                     case 1 -> addAuthor();
@@ -486,16 +487,15 @@ public class MainMenu {
                     case 4 -> updateAuthor();
                     case 5 -> deleteAuthor();
                     case 0 -> { return; }
-                    default -> LOGGER.warning("Неверный выбор");
                 }
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, ERROR_DB + e.getMessage(), e);
+                System.err.println("Ошибка БД: " + e.getMessage());
             }
         }
     }
 
     private void addAuthor() throws SQLException {
-        LOGGER.info("\nДОБАВЛЕНИЕ НОВОГО АВТОРА");
+        System.out.println("\nДОБАВЛЕНИЕ НОВОГО АВТОРА");
         Author author = new Author();
         author.setFirstName(readString("Имя: "));
         author.setLastName(readString("Фамилия: "));
@@ -506,20 +506,20 @@ public class MainMenu {
                 java.sql.Date sqlDate = java.sql.Date.valueOf(birthDateStr);
                 author.setBirthDate(sqlDate.toString());
             } catch (IllegalArgumentException e) {
-                LOGGER.info("Неверный формат даты. Используйте ГГГГ-ММ-ДД");
+                System.out.println("Неверный формат даты. Используйте ГГГГ-ММ-ДД");
                 return;
             }
         }
         author.setBiography(readString("Биография: "));
         authorDAO.addAuthor(author);
-        LOGGER.info("Автор добавлен! ID: " + author.getId());
+        System.out.println("Автор добавлен! ID: " + author.getId());
     }
 
     private void listAllAuthors() throws SQLException {
-        LOGGER.info("\nСПИСОК ВСЕХ АВТОРОВ");
+        System.out.println("\nСПИСОК ВСЕХ АВТОРОВ");
         List<Author> authors = authorDAO.getAllAuthors();
         if (authors.isEmpty()) {
-            LOGGER.info("Авторов не найдено");
+            System.out.println("Авторов не найдено");
             return;
         }
 
@@ -539,25 +539,25 @@ public class MainMenu {
         String midLine = "├" + "─".repeat(idWidth) + "┼" + "─".repeat(nameWidth) + "┼" + "─".repeat(birthWidth) + "┼" + "─".repeat(bioWidth) + "┤";
         String bottomLine = "└" + "─".repeat(idWidth) + "┴" + "─".repeat(nameWidth) + "┴" + "─".repeat(birthWidth) + "┴" + "─".repeat(bioWidth) + "┘";
 
-        LOGGER.info(topLine);
-        LOGGER.info(String.format("│ %-" + (idWidth - 1) + "s│ %-" + (nameWidth - 1) + "s│ %-" + (birthWidth - 1) + "s│ %-" + (bioWidth - 1) + "s│", "ID", "Имя и фамилия", "Дата рождения", "Биография"));
-        LOGGER.info(midLine);
+        System.out.println(topLine);
+        System.out.printf("│ %-" + (idWidth - 1) + "s│ %-" + (nameWidth - 1) + "s│ %-" + (birthWidth - 1) + "s│ %-" + (bioWidth - 1) + "s│%n", "ID", "Имя и фамилия", "Дата рождения", "Биография");
+        System.out.println(midLine);
 
         for (Author a : authors) {
             String bio = a.getBiography();
             if (bio != null && bio.length() > bioWidth - 1) bio = bio.substring(0, bioWidth - 4) + "...";
             String birth = a.getBirthDate() != null ? a.getBirthDate() : "Не указана";
-            LOGGER.info(String.format("│ %-" + (idWidth - 1) + "d│ %-" + (nameWidth - 1) + "s│ %-" + (birthWidth - 1) + "s│ %-" + (bioWidth - 1) + "s│", a.getId(), a.getFullName(), birth, bio != null ? bio : "Нет"));
+            System.out.printf("│ %-" + (idWidth - 1) + "d│ %-" + (nameWidth - 1) + "s│ %-" + (birthWidth - 1) + "s│ %-" + (bioWidth - 1) + "s│%n", a.getId(), a.getFullName(), birth, bio != null ? bio : "Нет");
         }
-        LOGGER.info(bottomLine);
+        System.out.println(bottomLine);
     }
 
     private void findAuthorById() throws SQLException {
-        LOGGER.info("\nПОИСК АВТОРА ПО ID");
+        System.out.println("\nПОИСК АВТОРА ПО ID");
         int id = readInt("Введите ID автора: ", 1, Integer.MAX_VALUE);
         Author author = authorDAO.getAuthorById(id);
         if (author == null) {
-            LOGGER.info("Автор с ID " + id + NOT_FOUND);
+            System.out.println("Автор с ID " + id + " не найден");
             return;
         }
 
@@ -571,20 +571,20 @@ public class MainMenu {
     }
 
     private void updateAuthor() throws SQLException {
-        LOGGER.info("\nОБНОВЛЕНИЕ АВТОРА");
+        System.out.println("\nОБНОВЛЕНИЕ АВТОРА");
         int id = readInt("Введите ID автора: ", 1, Integer.MAX_VALUE);
         Author author = authorDAO.getAuthorById(id);
         if (author == null) {
-            LOGGER.info("Автор не найден");
+            System.out.println("Автор не найден");
             return;
         }
 
-        LOGGER.info("Текущие данные:");
-        LOGGER.info("Имя: " + author.getFirstName());
-        LOGGER.info("Фамилия: " + author.getLastName());
-        LOGGER.info("Дата рождения: " + (author.getBirthDate() != null ? author.getBirthDate() : "Не указана"));
-        LOGGER.info("Биография: " + (author.getBiography() != null ? author.getBiography() : "Нет"));
-        LOGGER.info("Введите новые данные (оставьте пустым для сохранения текущего значения)");
+        System.out.println("Текущие данные:");
+        System.out.println("Имя: " + author.getFirstName());
+        System.out.println("Фамилия: " + author.getLastName());
+        System.out.println("Дата рождения: " + (author.getBirthDate() != null ? author.getBirthDate() : "Не указана"));
+        System.out.println("Биография: " + (author.getBiography() != null ? author.getBiography() : "Нет"));
+        System.out.println("Введите новые данные (оставьте пустым для сохранения текущего значения)");
 
         String firstName = readString("Имя (" + author.getFirstName() + "): ");
         if (!firstName.trim().isEmpty()) author.setFirstName(firstName);
@@ -599,40 +599,41 @@ public class MainMenu {
         if (!biography.trim().isEmpty()) author.setBiography(biography);
 
         authorDAO.updateAuthor(author);
-        LOGGER.info("Автор обновлён!");
+        System.out.println("Автор обновлён!");
     }
 
     private void deleteAuthor() throws SQLException {
-        LOGGER.info("\nУДАЛЕНИЕ АВТОРА");
+        System.out.println("\nУДАЛЕНИЕ АВТОРА");
         int id = readInt("Введите ID автора: ", 1, Integer.MAX_VALUE);
         Author author = authorDAO.getAuthorById(id);
         if (author == null) {
-            LOGGER.info("Автор не найден");
+            System.out.println("Автор не найден");
             return;
         }
-        LOGGER.info("Автор: " + author.getFullName());
+        System.out.println("Автор: " + author.getFullName());
         if (readYesNo("Вы уверены? (y/n): ")) {
             authorDAO.deleteAuthor(id);
-            LOGGER.info("Автор удалён!");
+            System.out.println("Автор удалён!");
         } else {
-            LOGGER.info("Операция отменена");
+            System.out.println("Операция отменена");
         }
     }
 
+    // ==================== USERS ====================
     private void manageUsers() {
         while (true) {
-            LOGGER.info("\n" + HEADER_TOP);
-            LOGGER.info("║         УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ            ║");
-            LOGGER.info(HEADER_MID);
-            LOGGER.info("║  1.  Добавить пользователя                   ║");
-            LOGGER.info("║  2.  Список всех пользователей               ║");
-            LOGGER.info("║  3.  Найти пользователя по ID                ║");
-            LOGGER.info("║  4.  Обновить пользователя                   ║");
-            LOGGER.info("║  5.  Удалить пользователя                    ║");
-            LOGGER.info(MENU_BACK);
-            LOGGER.info(HEADER_BOTTOM);
+            System.out.println("\n╔══════════════════════════════════════════════╗");
+            System.out.println("║         УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ            ║");
+            System.out.println("╠══════════════════════════════════════════════╣");
+            System.out.println("║  1.  Добавить пользователя                   ║");
+            System.out.println("║  2.  Список всех пользователей               ║");
+            System.out.println("║  3.  Найти пользователя по ID                ║");
+            System.out.println("║  4.  Обновить пользователя                   ║");
+            System.out.println("║  5.  Удалить пользователя                    ║");
+            System.out.println("║  0.  Назад                                   ║");
+            System.out.println("╚══════════════════════════════════════════════╝");
 
-            int choice = readInt(PROMPT_ACTION, 0, 5);
+            int choice = readInt("Выберите действие: ", 0, 5);
             try {
                 switch (choice) {
                     case 1 -> addUser();
@@ -641,16 +642,15 @@ public class MainMenu {
                     case 4 -> updateUser();
                     case 5 -> deleteUser();
                     case 0 -> { return; }
-                    default -> LOGGER.warning("Неверный выбор");
                 }
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, ERROR_DB + e.getMessage(), e);
+                System.err.println("Ошибка БД: " + e.getMessage());
             }
         }
     }
 
     private void addUser() throws SQLException {
-        LOGGER.info("\nДОБАВЛЕНИЕ НОВОГО ПОЛЬЗОВАТЕЛЯ");
+        System.out.println("\nДОБАВЛЕНИЕ НОВОГО ПОЛЬЗОВАТЕЛЯ");
         User user = new User();
         user.setEmail(readString("Email: "));
         user.setPasswordHash(readString("Пароль (хеш): "));
@@ -660,14 +660,14 @@ public class MainMenu {
         user.setAddress(readString("Адрес: "));
         user.setRole(readString("Роль (READER/LIBRARIAN/ADMIN): "));
         userDAO.addUser(user);
-        LOGGER.info("Пользователь добавлен! ID: " + user.getId());
+        System.out.println("Пользователь добавлен! ID: " + user.getId());
     }
 
     private void listAllUsers() throws SQLException {
-        LOGGER.info("\nСПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ");
+        System.out.println("\nСПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ");
         List<User> users = userDAO.getAllUsers();
         if (users.isEmpty()) {
-            LOGGER.info("Пользователей не найдено");
+            System.out.println("Пользователей не найдено");
             return;
         }
 
@@ -689,23 +689,23 @@ public class MainMenu {
         String midLine = "├" + "─".repeat(idWidth) + "┼" + "─".repeat(nameWidth) + "┼" + "─".repeat(emailWidth) + "┼" + "─".repeat(roleWidth) + "┼" + "─".repeat(statusWidth) + "┤";
         String bottomLine = "└" + "─".repeat(idWidth) + "┴" + "─".repeat(nameWidth) + "┴" + "─".repeat(emailWidth) + "┴" + "─".repeat(roleWidth) + "┴" + "─".repeat(statusWidth) + "┘";
 
-        LOGGER.info(topLine);
-        LOGGER.info(String.format("│ %-" + (idWidth - 1) + "s│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (roleWidth - 1) + "s│ %-" + (statusWidth - 1) + "s│", "ID", "Имя и фамилия", "Email", "Роль", "Статус"));
-        LOGGER.info(midLine);
+        System.out.println(topLine);
+        System.out.printf("│ %-" + (idWidth - 1) + "s│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (roleWidth - 1) + "s│ %-" + (statusWidth - 1) + "s│%n", "ID", "Имя и фамилия", "Email", "Роль", "Статус");
+        System.out.println(midLine);
 
         for (User u : users) {
-            LOGGER.info(String.format("│ %-" + (idWidth - 1) + "d│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (roleWidth - 1) + "s│ %-" + (statusWidth - 1) + "s│",
-                u.getId(), u.getFullName(), u.getEmail(), u.getRole(), u.isActive() ? "Активен" : "Неактивен"));
+            System.out.printf("│ %-" + (idWidth - 1) + "d│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (roleWidth - 1) + "s│ %-" + (statusWidth - 1) + "s│%n",
+                u.getId(), u.getFullName(), u.getEmail(), u.getRole(), u.isActive() ? "Активен" : "Неактивен");
         }
-        LOGGER.info(bottomLine);
+        System.out.println(bottomLine);
     }
 
     private void findUserById() throws SQLException {
-        LOGGER.info("\nПОИСК ПОЛЬЗОВАТЕЛЯ ПО ID");
+        System.out.println("\nПОИСК ПОЛЬЗОВАТЕЛЯ ПО ID");
         int id = readInt("Введите ID пользователя: ", 1, Integer.MAX_VALUE);
         User user = userDAO.getUserById(id);
         if (user == null) {
-            LOGGER.info("Пользователь с ID " + id + NOT_FOUND);
+            System.out.println("Пользователь с ID " + id + " не найден");
             return;
         }
 
@@ -730,20 +730,20 @@ public class MainMenu {
     }
 
     private void updateUser() throws SQLException {
-        LOGGER.info("\nОБНОВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ");
+        System.out.println("\nОБНОВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ");
         int id = readInt("Введите ID пользователя: ", 1, Integer.MAX_VALUE);
         User user = userDAO.getUserById(id);
         if (user == null) {
-            LOGGER.info("Пользователь не найден");
+            System.out.println("Пользователь не найден");
             return;
         }
 
-        LOGGER.info("Текущие данные:");
-        LOGGER.info("Имя: " + user.getFirstName());
-        LOGGER.info("Фамилия: " + user.getLastName());
-        LOGGER.info("Email: " + user.getEmail());
-        LOGGER.info("Роль: " + user.getRole());
-        LOGGER.info("Введите новые данные (оставьте пустым для сохранения текущего значения)");
+        System.out.println("Текущие данные:");
+        System.out.println("Имя: " + user.getFirstName());
+        System.out.println("Фамилия: " + user.getLastName());
+        System.out.println("Email: " + user.getEmail());
+        System.out.println("Роль: " + user.getRole());
+        System.out.println("Введите новые данные (оставьте пустым для сохранения текущего значения)");
 
         String firstName = readString("Имя (" + user.getFirstName() + "): ");
         if (!firstName.trim().isEmpty()) user.setFirstName(firstName);
@@ -761,40 +761,41 @@ public class MainMenu {
         if (!active.trim().isEmpty()) user.setActive(Boolean.parseBoolean(active));
 
         userDAO.updateUser(user);
-        LOGGER.info("Пользователь обновлён!");
+        System.out.println("Пользователь обновлён!");
     }
 
     private void deleteUser() throws SQLException {
-        LOGGER.info("\nУДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ");
+        System.out.println("\nУДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ");
         int id = readInt("Введите ID пользователя: ", 1, Integer.MAX_VALUE);
         User user = userDAO.getUserById(id);
         if (user == null) {
-            LOGGER.info("Пользователь не найден");
+            System.out.println("Пользователь не найден");
             return;
         }
-        LOGGER.info("Пользователь: " + user.getFullName() + " (" + user.getEmail() + ")");
+        System.out.println("Пользователь: " + user.getFullName() + " (" + user.getEmail() + ")");
         if (readYesNo("Вы уверены? (y/n): ")) {
             userDAO.deleteUser(id);
-            LOGGER.info("Пользователь удалён!");
+            System.out.println("Пользователь удалён!");
         } else {
-            LOGGER.info("Операция отменена");
+            System.out.println("Операция отменена");
         }
     }
 
+    // ==================== LOANS ====================
     private void manageLoans() {
         while (true) {
-            LOGGER.info("\n" + HEADER_TOP);
-            LOGGER.info("║           УПРАВЛЕНИЕ ВЫДАЧАМИ                ║");
-            LOGGER.info(HEADER_MID);
-            LOGGER.info("║  1.  Добавить выдачу                         ║");
-            LOGGER.info("║  2.  Список всех выдач                       ║");
-            LOGGER.info("║  3.  Активные выдачи                         ║");
-            LOGGER.info("║  4.  Вернуть книгу                           ║");
-            LOGGER.info("║  5.  Удалить выдачу                          ║");
-            LOGGER.info(MENU_BACK);
-            LOGGER.info(HEADER_BOTTOM);
+            System.out.println("\n╔══════════════════════════════════════════════╗");
+            System.out.println("║           УПРАВЛЕНИЕ ВЫДАЧАМИ                ║");
+            System.out.println("╠══════════════════════════════════════════════╣");
+            System.out.println("║  1.  Добавить выдачу                         ║");
+            System.out.println("║  2.  Список всех выдач                       ║");
+            System.out.println("║  3.  Активные выдачи                         ║");
+            System.out.println("║  4.  Вернуть книгу                           ║");
+            System.out.println("║  5.  Удалить выдачу                          ║");
+            System.out.println("║  0.  Назад                                   ║");
+            System.out.println("╚══════════════════════════════════════════════╝");
 
-            int choice = readInt(PROMPT_ACTION, 0, 5);
+            int choice = readInt("Выберите действие: ", 0, 5);
             try {
                 switch (choice) {
                     case 1 -> addLoan();
@@ -803,41 +804,40 @@ public class MainMenu {
                     case 4 -> returnBook();
                     case 5 -> deleteLoan();
                     case 0 -> { return; }
-                    default -> LOGGER.warning("Неверный выбор");
                 }
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, ERROR_DB + e.getMessage(), e);
+                System.err.println("Ошибка БД: " + e.getMessage());
             }
         }
     }
 
     private void addLoan() throws SQLException {
-        LOGGER.info("\nНОВАЯ ВЫДАЧА КНИГИ");
+        System.out.println("\nНОВАЯ ВЫДАЧА КНИГИ");
         int bookId = readInt("ID книги: ", 1, Integer.MAX_VALUE);
 
         Book book = bookDAO.getBookById(bookId);
         if (book == null) {
-            LOGGER.info("Книга с ID " + bookId + NOT_FOUND);
+            System.out.println("Книга с ID " + bookId + " не найдена");
             return;
         }
 
         int available = bookDAO.getAvailableCopies(bookId);
         if (available <= 0) {
-            LOGGER.info("Нет доступных экземпляров книги \"" + book.getTitle() + "\"");
-            LOGGER.info(LABEL_TOTAL_COPIES + book.getTotalCopies() + ", доступно: 0");
+            System.out.println("Нет доступных экземпляров книги \"" + book.getTitle() + "\"");
+            System.out.println("Всего экземпляров: " + book.getTotalCopies() + ", доступно: 0");
             return;
         }
 
         int userId = readInt("ID пользователя: ", 1, Integer.MAX_VALUE);
         User user = userDAO.getUserById(userId);
         if (user == null) {
-            LOGGER.info("Пользователь с ID " + userId + NOT_FOUND);
+            System.out.println("Пользователь с ID " + userId + " не найден");
             return;
         }
 
         List<Loan> userLoans = loanDAO.getActiveLoansByUserAndBook(userId, bookId);
         if (!userLoans.isEmpty()) {
-            LOGGER.info("Пользователь уже взял эту книгу и ещё не вернул");
+            System.out.println("Пользователь уже взял эту книгу и ещё не вернул");
             return;
         }
 
@@ -845,133 +845,134 @@ public class MainMenu {
         loan.setBookId(bookId);
         loan.setUserId(userId);
 
-        LocalDate today = LocalDate.now();
-        LocalDate dueDate = today.plusDays(30);
+        java.sql.Date loanDate = new java.sql.Date(System.currentTimeMillis());
+        java.sql.Date dueDate = new java.sql.Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000);
 
-        loan.setLoanDate(today.toString());
+        loan.setLoanDate(loanDate.toString());
         loan.setDueDate(dueDate.toString());
         loan.setStatus("ACTIVE");
 
         loanDAO.addLoan(loan);
-        LOGGER.info("Книга выдана! ID выдачи: " + loan.getId());
-        LOGGER.info("Дата возврата: " + loan.getDueDate());
-        LOGGER.info("Осталось доступных экземпляров: " + (available - 1));
+        System.out.println("Книга выдана! ID выдачи: " + loan.getId());
+        System.out.println("Дата возврата: " + loan.getDueDate());
+        System.out.println("Осталось доступных экземпляров: " + (available - 1));
     }
 
     private void listAllLoans() throws SQLException {
-        LOGGER.info("\nСПИСОК ВСЕХ ВЫДАЧ");
+        System.out.println("\nСПИСОК ВСЕХ ВЫДАЧ");
         List<Loan> loans = loanDAO.getAllLoans();
         if (loans.isEmpty()) {
-            LOGGER.info("Выдач не найдено");
+            System.out.println("Выдач не найдено");
             return;
         }
-        LOGGER.info("┌────┬──────────┬────────────┬────────────┬────────────┬────────────┬──────────────┐");
-        LOGGER.info("│ ID │ Книга    │ Читатель   │ Дата выдачи│ Срок       │ Статус     │ Штраф        │");
-        LOGGER.info("├────┼──────────┼────────────┼────────────┼────────────┼────────────┼──────────────┤");
+        System.out.println("┌────┬──────────┬────────────┬────────────┬────────────┬────────────┬──────────────┐");
+        System.out.println("│ ID │ Книга    │ Читатель   │ Дата выдачи│ Срок       │ Статус     │ Штраф        │");
+        System.out.println("├────┼──────────┼────────────┼────────────┼────────────┼────────────┼──────────────┤");
         for (Loan l : loans) {
-            LOGGER.info(String.format("│ %-2d │ %-8d │ %-10d │ %-10s │ %-10s │ %-10s │ %-12.2f │",
-                l.getId(), l.getBookId(), l.getUserId(), l.getLoanDate(), l.getDueDate(), l.getStatus(), l.getFineAmount()));
+            System.out.printf("│ %-2d │ %-8d │ %-10d │ %-10s │ %-10s │ %-10s │ %-12.2f │%n",
+                l.getId(), l.getBookId(), l.getUserId(), l.getLoanDate(), l.getDueDate(), l.getStatus(), l.getFineAmount());
         }
-        LOGGER.info("└────┴──────────┴────────────┴────────────┴────────────┴────────────┴──────────────┘");
+        System.out.println("└────┴──────────┴────────────┴────────────┴────────────┴────────────┴──────────────┘");
     }
 
     private void listActiveLoans() throws SQLException {
-        LOGGER.info("\nАКТИВНЫЕ ВЫДАЧИ");
+        System.out.println("\nАКТИВНЫЕ ВЫДАЧИ");
         List<Loan> loans = loanDAO.getActiveLoans();
         if (loans.isEmpty()) {
-            LOGGER.info("Нет активных выдач");
+            System.out.println("Нет активных выдач");
             return;
         }
-        LOGGER.info("┌────┬──────────┬────────────┬────────────┬────────────┬──────────────┐");
-        LOGGER.info("│ ID │ Книга    │ Читатель   │ Дата выдачи│ Срок       │ Штраф        │");
-        LOGGER.info("├────┼──────────┼────────────┼────────────┼────────────┼──────────────┤");
+        System.out.println("┌────┬──────────┬────────────┬────────────┬────────────┬──────────────┐");
+        System.out.println("│ ID │ Книга    │ Читатель   │ Дата выдачи│ Срок       │ Штраф        │");
+        System.out.println("├────┼──────────┼────────────┼────────────┼────────────┼──────────────┤");
         for (Loan l : loans) {
-            LOGGER.info(String.format("│ %-2d │ %-8d │ %-10d │ %-10s │ %-10s │ %-12.2f │",
-                l.getId(), l.getBookId(), l.getUserId(), l.getLoanDate(), l.getDueDate(), l.getFineAmount()));
+            System.out.printf("│ %-2d │ %-8d │ %-10d │ %-10s │ %-10s │ %-12.2f │%n",
+                l.getId(), l.getBookId(), l.getUserId(), l.getLoanDate(), l.getDueDate(), l.getFineAmount());
         }
-        LOGGER.info("└────┴──────────┴────────────┴────────────┴────────────┴──────────────┘");
+        System.out.println("└────┴──────────┴────────────┴────────────┴────────────┴──────────────┘");
     }
 
     private void returnBook() throws SQLException {
-        LOGGER.info("\nВОЗВРАТ КНИГИ");
+        System.out.println("\nВОЗВРАТ КНИГИ");
         int loanId = readInt("Введите ID выдачи: ", 1, Integer.MAX_VALUE);
 
         Loan loan = loanDAO.getLoanById(loanId);
         if (loan == null) {
-            LOGGER.info("Выдача с ID " + loanId + NOT_FOUND);
+            System.out.println("Выдача с ID " + loanId + " не найдена");
             return;
         }
 
         if (!loan.getStatus().equals("ACTIVE") && !loan.getStatus().equals("OVERDUE")) {
-            LOGGER.info("Эта выдача уже завершена. Статус: " + loan.getStatus());
+            System.out.println("Эта выдача уже завершена. Статус: " + loan.getStatus());
             return;
         }
 
-        LOGGER.info("\nИнформация о выдаче:");
-        LOGGER.info("  Книга ID: " + loan.getBookId());
-        LOGGER.info("  Пользователь ID: " + loan.getUserId());
-        LOGGER.info("  Дата выдачи: " + loan.getLoanDate());
-        LOGGER.info("  Срок возврата: " + loan.getDueDate());
-        LOGGER.info("  Статус: " + loan.getStatus());
+        System.out.println("\nИнформация о выдаче:");
+        System.out.println("  Книга ID: " + loan.getBookId());
+        System.out.println("  Пользователь ID: " + loan.getUserId());
+        System.out.println("  Дата выдачи: " + loan.getLoanDate());
+        System.out.println("  Срок возврата: " + loan.getDueDate());
+        System.out.println("  Статус: " + loan.getStatus());
 
-        LocalDate today = LocalDate.now();
-        LocalDate dueDate = LocalDate.parse(loan.getDueDate());
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate dueDate = java.time.LocalDate.parse(loan.getDueDate());
 
         double fine = 0;
         if (dueDate.isBefore(today)) {
             long daysOverdue = java.time.temporal.ChronoUnit.DAYS.between(dueDate, today);
             double autoFine = daysOverdue * 0.50;
 
-            LOGGER.info("\nКнига просрочена на " + daysOverdue + " дней");
-            LOGGER.info("  Автоматический штраф: " + autoFine + " руб. (0.50 руб/день)");
-            LOGGER.info("  Введите 0 для автоматического расчёта");
+            System.out.println("\nКнига просрочена на " + daysOverdue + " дней");
+            System.out.println("  Автоматический штраф: " + autoFine + " руб. (0.50 руб/день)");
+            System.out.println("  Введите 0 для автоматического расчёта");
 
             double userFine = readDouble("  Введите сумму штрафа: ");
             if (userFine == 0) {
                 fine = autoFine;
-                LOGGER.info("  Использован автоматический расчёт: " + fine + " руб.");
+                System.out.println("  Использован автоматический расчёт: " + fine + " руб.");
             } else if (userFine > 0) {
                 fine = userFine;
             } else {
-                LOGGER.info("  Штраф не может быть отрицательным. Использован авторасчёт.");
+                System.out.println("  Штраф не может быть отрицательным. Использован авторасчёт.");
                 fine = autoFine;
             }
         } else {
-            LOGGER.info("\nКнига возвращена вовремя, штраф не назначается");
+            System.out.println("\nКнига возвращена вовремя, штраф не назначается");
             fine = 0;
         }
 
         loanDAO.returnBook(loanId, fine);
         int available = bookDAO.getAvailableCopies(loan.getBookId());
-        LOGGER.info("\nКнига возвращена! Штраф: " + fine + " руб.");
-        LOGGER.info("Доступно экземпляров: " + available);
+        System.out.println("\nКнига возвращена! Штраф: " + fine + " руб.");
+        System.out.println("Доступно экземпляров: " + available);
     }
 
     private void deleteLoan() throws SQLException {
-        LOGGER.info("\nУДАЛЕНИЕ ВЫДАЧИ");
+        System.out.println("\nУДАЛЕНИЕ ВЫДАЧИ");
         int id = readInt("Введите ID выдачи: ", 1, Integer.MAX_VALUE);
         if (readYesNo("Вы уверены? (y/n): ")) {
             loanDAO.deleteLoan(id);
-            LOGGER.info("Выдача удалена!");
+            System.out.println("Выдача удалена!");
         } else {
-            LOGGER.info("Операция отменена");
+            System.out.println("Операция отменена");
         }
     }
 
+    // ==================== PUBLISHERS ====================
     private void managePublishers() {
         while (true) {
-            LOGGER.info("\n" + HEADER_TOP);
-            LOGGER.info("║           УПРАВЛЕНИЕ ИЗДАТЕЛЯМИ              ║");
-            LOGGER.info(HEADER_MID);
-            LOGGER.info("║  1.  Добавить издателя                       ║");
-            LOGGER.info("║  2.  Список всех издателей                   ║");
-            LOGGER.info("║  3.  Найти издателя по ID                    ║");
-            LOGGER.info("║  4.  Обновить издателя                       ║");
-            LOGGER.info("║  5.  Удалить издателя                        ║");
-            LOGGER.info(MENU_BACK);
-            LOGGER.info(HEADER_BOTTOM);
+            System.out.println("\n╔══════════════════════════════════════════════╗");
+            System.out.println("║           УПРАВЛЕНИЕ ИЗДАТЕЛЯМИ              ║");
+            System.out.println("╠══════════════════════════════════════════════╣");
+            System.out.println("║  1.  Добавить издателя                       ║");
+            System.out.println("║  2.  Список всех издателей                   ║");
+            System.out.println("║  3.  Найти издателя по ID                    ║");
+            System.out.println("║  4.  Обновить издателя                       ║");
+            System.out.println("║  5.  Удалить издателя                        ║");
+            System.out.println("║  0.  Назад                                   ║");
+            System.out.println("╚══════════════════════════════════════════════╝");
 
-            int choice = readInt(PROMPT_ACTION, 0, 5);
+            int choice = readInt("Выберите действие: ", 0, 5);
             try {
                 switch (choice) {
                     case 1 -> addPublisher();
@@ -980,16 +981,15 @@ public class MainMenu {
                     case 4 -> updatePublisher();
                     case 5 -> deletePublisher();
                     case 0 -> { return; }
-                    default -> LOGGER.warning("Неверный выбор");
                 }
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, ERROR_DB + e.getMessage(), e);
+                System.err.println("Ошибка БД: " + e.getMessage());
             }
         }
     }
 
     private void addPublisher() throws SQLException {
-        LOGGER.info("\nДОБАВЛЕНИЕ НОВОГО ИЗДАТЕЛЯ");
+        System.out.println("\nДОБАВЛЕНИЕ НОВОГО ИЗДАТЕЛЯ");
         Publisher publisher = new Publisher();
         publisher.setName(readString("Название издательства: "));
         publisher.setAddress(readString("Адрес: "));
@@ -997,14 +997,14 @@ public class MainMenu {
         publisher.setEmail(readString("Email: "));
         publisher.setWebsite(readString("Сайт: "));
         publisherDAO.addPublisher(publisher);
-        LOGGER.info("Издатель добавлен! ID: " + publisher.getId());
+        System.out.println("Издатель добавлен! ID: " + publisher.getId());
     }
 
     private void listAllPublishers() throws SQLException {
-        LOGGER.info("\nСПИСОК ВСЕХ ИЗДАТЕЛЕЙ");
+        System.out.println("\nСПИСОК ВСЕХ ИЗДАТЕЛЕЙ");
         List<Publisher> publishers = publisherDAO.getAllPublishers();
         if (publishers.isEmpty()) {
-            LOGGER.info("Издателей не найдено");
+            System.out.println("Издателей не найдено");
             return;
         }
 
@@ -1024,23 +1024,23 @@ public class MainMenu {
         String midLine = "├" + "─".repeat(idWidth) + "┼" + "─".repeat(nameWidth) + "┼" + "─".repeat(emailWidth) + "┼" + "─".repeat(phoneWidth) + "┤";
         String bottomLine = "└" + "─".repeat(idWidth) + "┴" + "─".repeat(nameWidth) + "┴" + "─".repeat(emailWidth) + "┴" + "─".repeat(phoneWidth) + "┘";
 
-        LOGGER.info(topLine);
-        LOGGER.info(String.format("│ %-" + (idWidth - 1) + "s│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (phoneWidth - 1) + "s│", "ID", "Название", "Email", "Телефон"));
-        LOGGER.info(midLine);
+        System.out.println(topLine);
+        System.out.printf("│ %-" + (idWidth - 1) + "s│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (phoneWidth - 1) + "s│%n", "ID", "Название", "Email", "Телефон");
+        System.out.println(midLine);
 
         for (Publisher p : publishers) {
-            LOGGER.info(String.format("│ %-" + (idWidth - 1) + "d│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (phoneWidth - 1) + "s│",
-                p.getId(), p.getName(), p.getEmail() != null ? p.getEmail() : "", p.getPhone() != null ? p.getPhone() : ""));
+            System.out.printf("│ %-" + (idWidth - 1) + "d│ %-" + (nameWidth - 1) + "s│ %-" + (emailWidth - 1) + "s│ %-" + (phoneWidth - 1) + "s│%n",
+                p.getId(), p.getName(), p.getEmail() != null ? p.getEmail() : "", p.getPhone() != null ? p.getPhone() : "");
         }
-        LOGGER.info(bottomLine);
+        System.out.println(bottomLine);
     }
 
     private void findPublisherById() throws SQLException {
-        LOGGER.info("\nПОИСК ИЗДАТЕЛЯ ПО ID");
+        System.out.println("\nПОИСК ИЗДАТЕЛЯ ПО ID");
         int id = readInt("Введите ID издателя: ", 1, Integer.MAX_VALUE);
         Publisher publisher = publisherDAO.getPublisherById(id);
         if (publisher == null) {
-            LOGGER.info("Издатель с ID " + id + NOT_FOUND);
+            System.out.println("Издатель с ID " + id + " не найден");
             return;
         }
 
@@ -1055,22 +1055,22 @@ public class MainMenu {
     }
 
     private void updatePublisher() throws SQLException {
-        LOGGER.info("\nОБНОВЛЕНИЕ ИЗДАТЕЛЯ");
+        System.out.println("\nОБНОВЛЕНИЕ ИЗДАТЕЛЯ");
         int id = readInt("Введите ID издателя: ", 1, Integer.MAX_VALUE);
         Publisher publisher = publisherDAO.getPublisherById(id);
         if (publisher == null) {
-            LOGGER.info("Издатель не найден");
+            System.out.println("Издатель не найден");
             return;
         }
 
-        LOGGER.info("Текущие данные:");
-        LOGGER.info("ID:          " + publisher.getId());
-        LOGGER.info("Название:    " + publisher.getName());
-        LOGGER.info("Адрес:       " + (publisher.getAddress() != null ? publisher.getAddress() : "Не указан"));
-        LOGGER.info("Телефон:     " + (publisher.getPhone() != null ? publisher.getPhone() : "Не указан"));
-        LOGGER.info("Email:       " + (publisher.getEmail() != null ? publisher.getEmail() : "Не указан"));
-        LOGGER.info("Сайт:        " + (publisher.getWebsite() != null ? publisher.getWebsite() : "Не указан"));
-        LOGGER.info("\nВведите новые данные (оставьте пустым для сохранения текущего значения)");
+        System.out.println("Текущие данные:");
+        System.out.println("ID:          " + publisher.getId());
+        System.out.println("Название:    " + publisher.getName());
+        System.out.println("Адрес:       " + (publisher.getAddress() != null ? publisher.getAddress() : "Не указан"));
+        System.out.println("Телефон:     " + (publisher.getPhone() != null ? publisher.getPhone() : "Не указан"));
+        System.out.println("Email:       " + (publisher.getEmail() != null ? publisher.getEmail() : "Не указан"));
+        System.out.println("Сайт:        " + (publisher.getWebsite() != null ? publisher.getWebsite() : "Не указан"));
+        System.out.println("\nВведите новые данные (оставьте пустым для сохранения текущего значения)");
 
         String name = readString("Название (" + publisher.getName() + "): ");
         if (!name.trim().isEmpty()) publisher.setName(name);
@@ -1088,36 +1088,37 @@ public class MainMenu {
         if (!website.trim().isEmpty()) publisher.setWebsite(website);
 
         publisherDAO.updatePublisher(publisher);
-        LOGGER.info("Издатель обновлён!");
+        System.out.println("Издатель обновлён!");
     }
 
     private void deletePublisher() throws SQLException {
-        LOGGER.info("\nУДАЛЕНИЕ ИЗДАТЕЛЯ");
+        System.out.println("\nУДАЛЕНИЕ ИЗДАТЕЛЯ");
         int id = readInt("Введите ID издателя: ", 1, Integer.MAX_VALUE);
         Publisher publisher = publisherDAO.getPublisherById(id);
         if (publisher == null) {
-            LOGGER.info("Издатель не найден");
+            System.out.println("Издатель не найден");
             return;
         }
-        LOGGER.info("Издатель: " + publisher.getName());
+        System.out.println("Издатель: " + publisher.getName());
         if (readYesNo("Вы уверены? (y/n): ")) {
             try {
                 publisherDAO.deletePublisher(id);
-                LOGGER.info("Издатель удалён!");
+                System.out.println("Издатель удалён!");
             } catch (SQLException e) {
                 if (e.getMessage().contains("foreign key")) {
-                    LOGGER.info("Невозможно удалить издателя: есть книги, привязанные к нему");
+                    System.out.println("Невозможно удалить издателя: есть книги, привязанные к нему");
                 } else {
                     throw e;
                 }
             }
         } else {
-            LOGGER.info("Операция отменена");
+            System.out.println("Операция отменена");
         }
     }
 
+    // ==================== SEARCH ====================
     private void searchBooks() {
-        LOGGER.info("\nПОИСК КНИГ");
+        System.out.println("\nПОИСК КНИГ");
         String title = readString("Название (или часть): ");
         String author = readString("Автор (или часть): ");
         String genre = readString("Жанр: ");
@@ -1125,7 +1126,7 @@ public class MainMenu {
         try {
             int total = bookDAO.countBooks(title, author, genre);
             if (total == 0) {
-                LOGGER.info("Книг не найдено");
+                System.out.println("Книг не найдено");
                 return;
             }
 
@@ -1134,12 +1135,12 @@ public class MainMenu {
             int totalPages = (int) Math.ceil((double) total / pageSize);
 
             while (true) {
-                LOGGER.info("\nРезультаты поиска (стр. " + page + "/" + totalPages + ", всего: " + total + ")");
+                System.out.println("\nРезультаты поиска (стр. " + page + "/" + totalPages + ", всего: " + total + ")");
                 List<Book> books = bookDAO.searchBooks(title, author, genre, page, pageSize);
                 printBookList(books);
 
                 if (page < totalPages) {
-                    LOGGER.info("Нажмите Enter для следующей страницы, или q для выхода");
+                    System.out.println("Нажмите Enter для следующей страницы, или q для выхода");
                     String input = scanner.nextLine();
                     if (input.equalsIgnoreCase("q")) break;
                     page++;
@@ -1148,18 +1149,19 @@ public class MainMenu {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Ошибка поиска: " + e.getMessage(), e);
+            System.err.println("Ошибка поиска: " + e.getMessage());
         }
     }
 
+    // ==================== UTILS ====================
     private void printBookList(List<Book> books) {
         if (books.isEmpty()) {
-            LOGGER.info("Книг не найдено");
+            System.out.println("Книг не найдено");
             return;
         }
-        LOGGER.info("┌────┬────────────────────────────────────────────┬──────────┬─────────────┐");
-        LOGGER.info("│ ID │ Название                                   │ Год      │ Доступно    │");
-        LOGGER.info("├────┼────────────────────────────────────────────┼──────────┼─────────────┤");
+        System.out.println("┌────┬────────────────────────────────────────────┬──────────┬─────────────┐");
+        System.out.println("│ ID │ Название                                   │ Год      │ Доступно    │");
+        System.out.println("├────┼────────────────────────────────────────────┼──────────┼─────────────┤");
         for (Book b : books) {
             int available;
             try {
@@ -1167,13 +1169,13 @@ public class MainMenu {
             } catch (SQLException e) {
                 available = 0;
             }
-            LOGGER.info(String.format("│ %-2d │ %-42s │ %-8d │ %-11d │",
+            System.out.printf("│ %-2d │ %-42s │ %-8d │ %-11d │%n",
                 b.getId(),
                 b.getTitle().length() > 42 ? b.getTitle().substring(0, 39) + "..." : b.getTitle(),
                 b.getPublicationYear(),
-                available));
+                available);
         }
-        LOGGER.info("└────┴────────────────────────────────────────────┴──────────┴─────────────┘");
+        System.out.println("└────┴────────────────────────────────────────────┴──────────┴─────────────┘");
     }
 
     private void printTable(String title, String... lines) {
@@ -1183,13 +1185,13 @@ public class MainMenu {
         }
         int width = Math.max(maxLen + 2, title.length() + 4);
 
-        LOGGER.info("┌" + "─".repeat(width) + "┐");
-        LOGGER.info("│" + centerString(title, width) + "│");
-        LOGGER.info("├" + "─".repeat(width) + "┤");
+        System.out.println("┌" + "─".repeat(width) + "┐");
+        System.out.println("│" + centerString(title, width) + "│");
+        System.out.println("├" + "─".repeat(width) + "┤");
         for (String line : lines) {
-            LOGGER.info("│ " + padRight(line, width - 1) + "│");
+            System.out.println("│ " + padRight(line, width - 1) + "│");
         }
-        LOGGER.info("└" + "─".repeat(width) + "┘");
+        System.out.println("└" + "─".repeat(width) + "┘");
     }
 
     private String padRight(String str, int length) {
@@ -1225,20 +1227,21 @@ public class MainMenu {
         return sb.toString();
     }
 
+    // ==================== INPUT METHODS ====================
     private String readString(String prompt) {
-        LOGGER.info(prompt);
+        System.out.print(prompt);
         return scanner.nextLine().trim();
     }
 
     private int readInt(String prompt, int min, int max) {
         while (true) {
             try {
-                LOGGER.info(prompt);
+                System.out.print(prompt);
                 int value = Integer.parseInt(scanner.nextLine().trim());
                 if (value >= min && value <= max) return value;
-                LOGGER.info("Введите число от " + min + " до " + max);
+                System.out.println("Введите число от " + min + " до " + max);
             } catch (NumberFormatException e) {
-                LOGGER.info("Введите корректное число");
+                System.out.println("Введите корректное число");
             }
         }
     }
@@ -1246,12 +1249,12 @@ public class MainMenu {
     private double readDouble(String prompt) {
         while (true) {
             try {
-                LOGGER.info(prompt);
+                System.out.print(prompt);
                 String input = scanner.nextLine().trim();
                 if (input.isEmpty()) return 0;
                 return Double.parseDouble(input);
             } catch (NumberFormatException e) {
-                LOGGER.info("Введите корректное число");
+                System.out.println("Введите корректное число");
             }
         }
     }
@@ -1261,7 +1264,7 @@ public class MainMenu {
             String input = readString(prompt);
             if (input.equalsIgnoreCase("y") || input.equalsIgnoreCase("yes")) return true;
             if (input.equalsIgnoreCase("n") || input.equalsIgnoreCase("no")) return false;
-            LOGGER.info("Введите y (да) или n (нет)");
+            System.out.println("Введите y (да) или n (нет)");
         }
     }
 }
