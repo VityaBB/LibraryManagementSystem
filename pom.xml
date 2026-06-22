@@ -18,7 +18,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
+         <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
 
         <sonar.organization>vityabb</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -80,8 +80,6 @@
                 <version>3.9.1.2184</version>
             </plugin>
 
-            <!-- ЗАКОММЕНТИРОВАН JACOCO - ОН НЕ НУЖЕН БЕЗ ТЕСТОВ -->
-            <!--
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -101,7 +99,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
         </plugins>
     </build>
 </project>
