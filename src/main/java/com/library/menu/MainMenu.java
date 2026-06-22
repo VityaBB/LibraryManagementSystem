@@ -10,12 +10,13 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
-   
+    // Константы для заголовков
     private static final String HEADER_TOP = "╔══════════════════════════════════════════════╗";
     private static final String HEADER_MID = "╠══════════════════════════════════════════════╣";
     private static final String HEADER_BOTTOM = "╚══════════════════════════════════════════════╝";
     private static final String MENU_BACK = "║  0.  Назад                                   ║";
-
+    
+    // Константы для сообщений
     private static final String PROMPT_ACTION = "Выберите действие: ";
     private static final String ERROR_DB = "Ошибка БД: ";
     private static final String NOT_FOUND = " не найден";
@@ -42,8 +43,7 @@ public class MainMenu {
     private static final String LABEL_LASTNAME = "Фамилия: ";
     private static final String LABEL_EMAIL = "Email: ";
     private static final String ID_PAREN = " (ID: ";
-    private static final String TABLE_FORMAT_S = "s│ %-";
-    private static final String TABLE_FORMAT_D = "d│ %-";
+    private static final String INVALID_CHOICE = "Неверный выбор";
     
     private final Scanner scanner = new Scanner(System.in);
     private final BookDAO bookDAO = new BookDAO();
@@ -72,7 +72,7 @@ public class MainMenu {
                     System.out.println("\nДо свидания!");
                     return;
                 }
-                default -> System.out.println("Неверный выбор");
+                default -> System.out.println(INVALID_CHOICE);
             }
         }
     }
@@ -114,7 +114,7 @@ public class MainMenu {
                     case 4 -> updateBook();
                     case 5 -> deleteBook();
                     case 0 -> { return; }
-                    default -> System.out.println("Неверный выбор");
+                    default -> System.out.println(INVALID_CHOICE);
                 }
             } catch (SQLException e) {
                 System.err.println(ERROR_DB + e.getMessage());
@@ -199,7 +199,7 @@ public class MainMenu {
         }
         book.setPublisherId(publisherId);
 
-        book.setTotalCopies(readInt("Всего экземпляров: ", 0, Integer.MAX_VALUE));
+        book.setTotalCopies(readInt(LABEL_TOTAL_COPIES, 0, Integer.MAX_VALUE));
         book.setPageCount(readInt("Количество страниц: ", 0, Integer.MAX_VALUE));
         book.setDescription(readString("Описание: "));
         return book;
@@ -555,7 +555,7 @@ public class MainMenu {
                     case 4 -> updateAuthor();
                     case 5 -> deleteAuthor();
                     case 0 -> { return; }
-                    default -> System.out.println("Неверный выбор");
+                    default -> System.out.println(INVALID_CHOICE);
                 }
             } catch (SQLException e) {
                 System.err.println(ERROR_DB + e.getMessage());
@@ -713,7 +713,7 @@ public class MainMenu {
                     case 4 -> updateUser();
                     case 5 -> deleteUser();
                     case 0 -> { return; }
-                    default -> System.out.println("Неверный выбор");
+                    default -> System.out.println(INVALID_CHOICE);
                 }
             } catch (SQLException e) {
                 System.err.println(ERROR_DB + e.getMessage());
@@ -735,7 +735,7 @@ public class MainMenu {
         System.out.println("Пользователь добавлен! ID: " + user.getId());
     }
 
-   private void listAllUsers() throws SQLException {
+    private void listAllUsers() throws SQLException {
         System.out.println("\nСПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ");
         List<User> users = userDAO.getAllUsers();
         if (users.isEmpty()) {
@@ -877,7 +877,7 @@ public class MainMenu {
                     case 4 -> returnBook();
                     case 5 -> deleteLoan();
                     case 0 -> { return; }
-                    default -> System.out.println("Неверный выбор");
+                    default -> System.out.println(INVALID_CHOICE);
                 }
             } catch (SQLException e) {
                 System.err.println(ERROR_DB + e.getMessage());
@@ -1055,7 +1055,7 @@ public class MainMenu {
                     case 4 -> updatePublisher();
                     case 5 -> deletePublisher();
                     case 0 -> { return; }
-                    default -> System.out.println("Неверный выбор");
+                    default -> System.out.println(INVALID_CHOICE);
                 }
             } catch (SQLException e) {
                 System.err.println(ERROR_DB + e.getMessage());

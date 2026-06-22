@@ -1,4 +1,5 @@
 package com.library.dao;
+
 import com.library.models.Genre;
 import com.library.DatabaseConnection;
 import com.library.models.Author;
@@ -8,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookDAO {
+    
+    private static final String BOOK_COLUMNS = "id, title, isbn, publication_year, publisher_id, total_copies, page_count, description";
+    private static final String AUTHOR_COLUMNS = "a.id, a.first_name, a.last_name, a.birth_date, a.biography";
+    private static final String GENRE_COLUMNS = "g.id, g.name, g.description";
     
     public void addBook(Book book) throws SQLException {
         String sql = "INSERT INTO books (title, isbn, publication_year, publisher_id, " +
@@ -35,34 +40,14 @@ public class BookDAO {
     }
 
     public List<Book> getAllBooks() throws SQLException {
-        String sql = "SELECT id, title, isbn, publication_year, publisher_id, total_copies, page_count, description FROM books ORDER BY id";
-        List<Book> books = new ArrayList<>();
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            while (rs.next()) {
-                books.add(mapResultSetToBook(rs));
-            }
-        }
-        return books;
+        String sql = "SELECT " + BOOK_COLUMNS + " FROM books ORDER BY id";
+        return executeQuery(sql, new Object[0]);
     }
 
     public Book getBookById(int id) throws SQLException {
-        String sql = "SELECT id, title, isbn, publication_year, publisher_id, total_copies, page_count, description FROM books WHERE id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                return mapResultSetToBook(rs);
-            }
-        }
-        return null;
+        String sql = "SELECT " + BOOK_COLUMNS + " FROM books WHERE id = ?";
+        List<Book> books = executeQuery(sql, new Object[]{id});
+        return books.isEmpty() ? null : books.get(0);
     }
 
     public List<Book> searchBooks(String title, String author, String genre, 
@@ -103,21 +88,7 @@ public class BookDAO {
         params.add(pageSize);
         params.add((page - 1) * pageSize);
         
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            
-            for (int i = 0; i < params.size(); i++) {
-                stmt.setObject(i + 1, params.get(i));
-            }
-            
-            ResultSet rs = stmt.executeQuery();
-            List<Book> books = new ArrayList<>();
-            while (rs.next()) {
-                Book book = mapResultSetToBook(rs);
-                books.add(book);
-            }
-            return books;
-        }
+        return executeSearchQuery(sql.toString(), params);
     }
 
     public void updateBook(Book book) throws SQLException {
@@ -165,6 +136,40 @@ public class BookDAO {
         return book;
     }
 
+    private List<Book> executeQuery(String sql, Object[] params) throws SQLException {
+        List<Book> books = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                books.add(mapResultSetToBook(rs));
+            }
+        }
+        return books;
+    }
+
+    private List<Book> executeSearchQuery(String sql, List<Object> params) throws SQLException {
+        List<Book> books = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                books.add(mapResultSetToBook(rs));
+            }
+        }
+        return books;
+    }
+
     public int countBooks(String title, String author, String genre) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(DISTINCT b.id) FROM books b ");
@@ -205,50 +210,40 @@ public class BookDAO {
         return 0;
     }
 
-    public void addBookGenre(int bookId, int genreId) throws SQLException {
-        String sql = "INSERT INTO book_genres (book_id, genre_id) VALUES (?, ?)";
+    private void executeUpdate(String sql, Object[] params) throws SQLException {
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookId);
-            stmt.setInt(2, genreId);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
             stmt.executeUpdate();
         }
+    }
+
+    public void addBookGenre(int bookId, int genreId) throws SQLException {
+        executeUpdate("INSERT INTO book_genres (book_id, genre_id) VALUES (?, ?)", 
+            new Object[]{bookId, genreId});
     }
 
     public void addBookAuthor(int bookId, int authorId, int order) throws SQLException {
-        String sql = "INSERT INTO book_authors (book_id, author_id, author_order) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookId);
-            stmt.setInt(2, authorId);
-            stmt.setInt(3, order);
-            stmt.executeUpdate();
-        }
+        executeUpdate("INSERT INTO book_authors (book_id, author_id, author_order) VALUES (?, ?, ?)", 
+            new Object[]{bookId, authorId, order});
     }
 
     public void deleteBookGenres(int bookId) throws SQLException {
-        String sql = "DELETE FROM book_genres WHERE book_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookId);
-            stmt.executeUpdate();
-        }
+        executeUpdate("DELETE FROM book_genres WHERE book_id = ?", new Object[]{bookId});
     }
 
     public void deleteBookAuthors(int bookId) throws SQLException {
-        String sql = "DELETE FROM book_authors WHERE book_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookId);
-            stmt.executeUpdate();
-        }
+        executeUpdate("DELETE FROM book_authors WHERE book_id = ?", new Object[]{bookId});
     }
 
     public List<Genre> getGenresByBookId(int bookId) throws SQLException {
-        String sql = "SELECT g.id, g.name, g.description FROM genres g JOIN book_genres bg ON g.id = bg.genre_id WHERE bg.book_id = ?";
+        String sql = "SELECT " + GENRE_COLUMNS + " FROM genres g JOIN book_genres bg ON g.id = bg.genre_id WHERE bg.book_id = ?";
         List<Genre> genres = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -263,10 +258,10 @@ public class BookDAO {
     }
 
     public List<Author> getAuthorsByBookId(int bookId) throws SQLException {
-        String sql = "SELECT a.id, a.first_name, a.last_name, a.birth_date, a.biography FROM authors a JOIN book_authors ba ON a.id = ba.author_id WHERE ba.book_id = ? ORDER BY ba.author_order";
+        String sql = "SELECT " + AUTHOR_COLUMNS + " FROM authors a JOIN book_authors ba ON a.id = ba.author_id WHERE ba.book_id = ? ORDER BY ba.author_order";
         List<Author> authors = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -295,7 +290,7 @@ public class BookDAO {
             """;
         
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -306,22 +301,12 @@ public class BookDAO {
     }
 
     public void deleteBookGenre(int bookId, int genreId) throws SQLException {
-        String sql = "DELETE FROM book_genres WHERE book_id = ? AND genre_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookId);
-            stmt.setInt(2, genreId);
-            stmt.executeUpdate();
-        }
+        executeUpdate("DELETE FROM book_genres WHERE book_id = ? AND genre_id = ?", 
+            new Object[]{bookId, genreId});
     }
 
     public void deleteBookAuthor(int bookId, int authorId) throws SQLException {
-        String sql = "DELETE FROM book_authors WHERE book_id = ? AND author_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookId);
-            stmt.setInt(2, authorId);
-            stmt.executeUpdate();
-        }
+        executeUpdate("DELETE FROM book_authors WHERE book_id = ? AND author_id = ?", 
+            new Object[]{bookId, authorId});
     }
 }
