@@ -1,6 +1,8 @@
 package com.library.models;
 
 public class Publisher {
+    private static final String NOT_SPECIFIED = "Не указан";
+    
     private int id;
     private String name;
     private String address;
@@ -19,7 +21,6 @@ public class Publisher {
         this.website = website;
     }
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -54,9 +55,9 @@ public class Publisher {
                 │ Сайт:        %s
                 └─────────────────────────────────┘
                 """, id, name, 
-                address != null ? address : "Не указан",
-                phone != null ? phone : "Не указан",
-                email != null ? email : "Не указан",
-                website != null ? website : "Не указан");
+                address != null ? address : NOT_SPECIFIED,
+                phone != null ? phone : NOT_SPECIFIED,
+                email != null ? email : NOT_SPECIFIED,
+                website != null ? website : NOT_SPECIFIED);
     }
 }

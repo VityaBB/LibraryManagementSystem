@@ -10,6 +10,15 @@ import java.util.logging.Logger;
 
 public class DatabaseConnection {
     private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
+    
+    private static final String DB_PASSWORD_ENV = "DB_PASSWORD";
+    private static final String DB_URL_ENV = "DB_URL";
+    private static final String DB_USER_ENV = "DB_USER";
+    private static final String DEFAULT_URL = "jdbc:postgresql://localhost:5432/library_db";
+    private static final String DEFAULT_USER = "library_user";
+    private static final String DEFAULT_PASSWORD = "123456";
+    private static final String DEFAULT_DRIVER = "org.postgresql.Driver";
+    
     private static String url;
     private static String user;
     private static String password;
@@ -29,25 +38,25 @@ public class DatabaseConnection {
                 props.load(input);
                 url = props.getProperty("db.url");
                 user = props.getProperty("db.user");
-                password = System.getenv("DB_PASSWORD");
+                password = System.getenv(DB_PASSWORD_ENV);
                 if (password == null || password.isEmpty()) {
                     password = props.getProperty("db.password");
-                    LOGGER.warning("Using password from properties file. Consider using DB_PASSWORD environment variable.");
+                    LOGGER.warning("Using password from properties file. Consider using " + DB_PASSWORD_ENV + " environment variable.");
                 }
                 driver = props.getProperty("db.driver");
                 
                 Class.forName(driver);
             } else {
-                url = System.getenv("DB_URL") != null ? 
-                    System.getenv("DB_URL") : "jdbc:postgresql://localhost:5432/library_db";
-                user = System.getenv("DB_USER") != null ? 
-                    System.getenv("DB_USER") : "library_user";
-                password = System.getenv("DB_PASSWORD") != null ? 
-                    System.getenv("DB_PASSWORD") : "123456";
-                driver = "org.postgresql.Driver";
+                url = System.getenv(DB_URL_ENV) != null ? 
+                    System.getenv(DB_URL_ENV) : DEFAULT_URL;
+                user = System.getenv(DB_USER_ENV) != null ? 
+                    System.getenv(DB_USER_ENV) : DEFAULT_USER;
+                password = System.getenv(DB_PASSWORD_ENV) != null ? 
+                    System.getenv(DB_PASSWORD_ENV) : DEFAULT_PASSWORD;
+                driver = DEFAULT_DRIVER;
                 
-                if (password.equals("123456") || password.isEmpty()) {
-                    LOGGER.warning("Using default password. Please set DB_PASSWORD environment variable.");
+                if (password.equals(DEFAULT_PASSWORD) || password.isEmpty()) {
+                    LOGGER.warning("Using default password. Please set " + DB_PASSWORD_ENV + " environment variable.");
                 }
                 Class.forName(driver);
             }
