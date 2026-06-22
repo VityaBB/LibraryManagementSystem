@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS books (
     publication_year INTEGER CHECK (publication_year > 0),
     publisher_id INTEGER REFERENCES publishers(id) ON DELETE SET NULL,
     total_copies INTEGER DEFAULT 1 CHECK (total_copies >= 0),
-    available_copies INTEGER DEFAULT 1 CHECK (available_copies >= 0),
     page_count INTEGER CHECK (page_count > 0),
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -168,25 +167,6 @@ CREATE TRIGGER update_reservations_updated_at
     BEFORE UPDATE ON reservations
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE OR REPLACE FUNCTION update_book_availability()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'INSERT' AND NEW.status = 'ACTIVE' THEN
-        UPDATE books SET available_copies = available_copies - 1
-        WHERE id = NEW.book_id AND available_copies > 0;
-    ELSIF TG_OP = 'UPDATE' AND OLD.status = 'ACTIVE' AND NEW.status = 'RETURNED' THEN
-        UPDATE books SET available_copies = available_copies + 1
-        WHERE id = NEW.book_id;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS update_book_availability_on_loan ON loans;
-CREATE TRIGGER update_book_availability_on_loan
-    AFTER INSERT OR UPDATE ON loans
-    FOR EACH ROW EXECUTE FUNCTION update_book_availability();
-
 INSERT INTO authors (first_name, last_name, birth_date, biography) VALUES
 ('Лев', 'Толстой', '1828-09-09', 'Великий русский писатель, мыслитель.'),
 ('Фёдор', 'Достоевский', '1821-11-11', 'Один из самых значительных русских писателей.'),
@@ -205,11 +185,11 @@ INSERT INTO genres (name, description) VALUES
 ('Фантастика', 'Жанр, основанный на фантастическом допущении.'),
 ('Поэзия', 'Стихотворные произведения.');
 
-INSERT INTO books (title, isbn, publication_year, publisher_id, total_copies, available_copies, page_count, description) VALUES
-('Война и мир', '978-5-04-123456-7', 1869, 1, 5, 5, 1300, 'Грандиозный роман-эпопея о России в эпоху Наполеоновских войн.'),
-('Преступление и наказание', '978-5-17-987654-3', 1866, 2, 3, 3, 680, 'Социально-психологический роман о студенте Раскольникове.'),
-('1984', '978-0-452-28423-4', 1949, 3, 4, 4, 328, 'Роман-антиутопия о тоталитарном обществе.'),
-('Маленький принц', '978-5-389-12345-6', 1943, 1, 6, 6, 120, 'Философская сказка о дружбе и любви.');
+INSERT INTO books (title, isbn, publication_year, publisher_id, total_copies, page_count, description) VALUES
+('Война и мир', '978-5-04-123456-7', 1869, 1, 5, 1300, 'Грандиозный роман-эпопея о России в эпоху Наполеоновских войн.'),
+('Преступление и наказание', '978-5-17-987654-3', 1866, 2, 3, 680, 'Социально-психологический роман о студенте Раскольникове.'),
+('1984', '978-0-452-28423-4', 1949, 3, 4, 328, 'Роман-антиутопия о тоталитарном обществе.'),
+('Маленький принц', '978-5-389-12345-6', 1943, 1, 6, 120, 'Философская сказка о дружбе и любви.');
 
 INSERT INTO book_authors (book_id, author_id, author_order) VALUES
 (1, 1, 1),
@@ -245,14 +225,15 @@ SELECT
     STRING_AGG(DISTINCT g.name, ', ') AS genres,
     p.name AS publisher,
     b.total_copies,
-    b.available_copies
+    b.total_copies - COUNT(l.id) FILTER (WHERE l.status IN ('ACTIVE', 'OVERDUE')) AS available_copies
 FROM books b
 LEFT JOIN book_authors ba ON b.id = ba.book_id
 LEFT JOIN authors a ON ba.author_id = a.id
 LEFT JOIN book_genres bg ON b.id = bg.book_id
 LEFT JOIN genres g ON bg.genre_id = g.id
 LEFT JOIN publishers p ON b.publisher_id = p.id
-GROUP BY b.id, p.name
+LEFT JOIN loans l ON b.id = l.book_id AND l.status IN ('ACTIVE', 'OVERDUE')
+GROUP BY b.id, p.name, b.total_copies
 ORDER BY b.title;
 
 SELECT 
@@ -266,5 +247,5 @@ SELECT
 FROM loans l
 JOIN users u ON l.user_id = u.id
 JOIN books b ON l.book_id = b.id
-WHERE l.status = 'ACTIVE'
+WHERE l.status IN ('ACTIVE', 'OVERDUE')
 ORDER BY l.due_date;
