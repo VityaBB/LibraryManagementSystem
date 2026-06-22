@@ -54,21 +54,4 @@ public class Book {
         return String.format("ID: %d | %s | %s | %d г. | %d экз. | %d стр.",
                 id, title, isbn, publicationYear, totalCopies, pageCount);
     }
-
-    public String toFullString() {
-        return String.format("""
-                ┌─────────── КНИГА ───────────┐
-                │ ID:              %d
-                │ Название:        %s
-                │ ISBN:            %s
-                │ Год публикации:  %d
-                │ ID издательства: %d
-                │ Всего экземпляров: %d
-                │ Страниц:         %d
-                │ Описание:        %s
-                └─────────────────────────────┘
-                """, id, title, isbn, publicationYear, publisherId, 
-                totalCopies, pageCount, 
-                description != null ? description : "Нет описания");
-    }
 }
