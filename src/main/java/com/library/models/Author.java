@@ -17,7 +17,6 @@ public class Author {
         this.biography = biography;
     }
 
-    
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -39,7 +38,7 @@ public class Author {
 
     @Override
     public String toString() {
-        return String.format("👤 ID: %d | %s %s | Дата рождения: %s",
+        return String.format("ID: %d | %s %s | Дата рождения: %s",
                 id, firstName, lastName, birthDate != null ? birthDate : "Не указана");
     }
 }

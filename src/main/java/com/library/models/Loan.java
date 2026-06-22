@@ -24,7 +24,6 @@ public class Loan {
         this.fineAmount = fineAmount;
     }
 
-  
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -49,5 +48,9 @@ public class Loan {
     public double getFineAmount() { return fineAmount; }
     public void setFineAmount(double fineAmount) { this.fineAmount = fineAmount; }
 
-    
+    @Override
+    public String toString() {
+        return String.format("ID: %d | Книга: %d | Читатель: %d | %s - %s | %s",
+                id, bookId, userId, loanDate, dueDate, status);
+    }
 }

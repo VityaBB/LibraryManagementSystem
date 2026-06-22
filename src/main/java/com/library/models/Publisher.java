@@ -1,8 +1,6 @@
 package com.library.models;
 
 public class Publisher {
-    private static final String NOT_SPECIFIED = "Не указан";
-    
     private int id;
     private String name;
     private String address;
@@ -41,23 +39,6 @@ public class Publisher {
 
     @Override
     public String toString() {
-        return String.format(" ID: %d | %s | %s | %s", id, name, email, website);
-    }
-
-    public String toFullString() {
-        return String.format("""
-                ┌─────────── ИЗДАТЕЛЬ ───────────┐
-                │ ID:          %d
-                │ Название:    %s
-                │ Адрес:       %s
-                │ Телефон:     %s
-                │ Email:       %s
-                │ Сайт:        %s
-                └─────────────────────────────────┘
-                """, id, name, 
-                address != null ? address : NOT_SPECIFIED,
-                phone != null ? phone : NOT_SPECIFIED,
-                email != null ? email : NOT_SPECIFIED,
-                website != null ? website : NOT_SPECIFIED);
+        return String.format("ID: %d | %s | %s | %s", id, name, email, website);
     }
 }

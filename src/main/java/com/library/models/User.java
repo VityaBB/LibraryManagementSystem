@@ -29,7 +29,6 @@ public class User {
         this.role = role;
     }
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -66,7 +65,7 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("👤 ID: %d | %s %s | %s | %s | %s",
+        return String.format("ID: %d | %s %s | %s | %s | %s",
                 id, firstName, lastName, email, role, isActive ? "Активен" : "Неактивен");
     }
 }

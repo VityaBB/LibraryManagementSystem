@@ -1,42 +1,30 @@
 package com.library.dao;
 
-import com.library.DatabaseConnection;
 import com.library.models.Author;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AuthorDAO {
-    private static final Logger LOGGER = Logger.getLogger(AuthorDAO.class.getName());
-    
+    private final Connection connection;
+
+    public AuthorDAO(Connection connection) {
+        this.connection = connection;
+    }
+
     public void addAuthor(Author author) throws SQLException {
         String sql = "INSERT INTO authors (first_name, last_name, birth_date, biography) VALUES (?, ?, ?, ?)";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, author.getFirstName());
             stmt.setString(2, author.getLastName());
-            
             String birthDateStr = author.getBirthDate();
             if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
-                try {
-                    java.sql.Date sqlDate = java.sql.Date.valueOf(birthDateStr);
-                    stmt.setDate(3, sqlDate);
-                } catch (IllegalArgumentException e) {
-                    LOGGER.log(Level.SEVERE, "Invalid date format: " + birthDateStr, e);
-                    throw new SQLException("Invalid date format. Use YYYY-MM-DD");
-                }
+                stmt.setDate(3, java.sql.Date.valueOf(birthDateStr));
             } else {
-                stmt.setNull(3, java.sql.Types.DATE);
+                stmt.setNull(3, Types.DATE);
             }
-            
             stmt.setString(4, author.getBiography());
-            
             stmt.executeUpdate();
-            
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 author.setId(rs.getInt(1));
@@ -47,11 +35,8 @@ public class AuthorDAO {
     public List<Author> getAllAuthors() throws SQLException {
         String sql = "SELECT id, first_name, last_name, birth_date, biography FROM authors ORDER BY last_name, first_name";
         List<Author> authors = new ArrayList<>();
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            
             while (rs.next()) {
                 authors.add(mapResultSetToAuthor(rs));
             }
@@ -61,13 +46,9 @@ public class AuthorDAO {
 
     public Author getAuthorById(int id) throws SQLException {
         String sql = "SELECT id, first_name, last_name, birth_date, biography FROM authors WHERE id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            
             if (rs.next()) {
                 return mapResultSetToAuthor(rs);
             }
@@ -77,55 +58,35 @@ public class AuthorDAO {
 
     public void updateAuthor(Author author) throws SQLException {
         String sql = "UPDATE authors SET first_name = ?, last_name = ?, birth_date = ?, biography = ? WHERE id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, author.getFirstName());
             stmt.setString(2, author.getLastName());
-            
             String birthDateStr = author.getBirthDate();
             if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
-                try {
-                    java.sql.Date sqlDate = java.sql.Date.valueOf(birthDateStr);
-                    stmt.setDate(3, sqlDate);
-                } catch (IllegalArgumentException e) {
-                    throw new SQLException("Invalid date format. Use YYYY-MM-DD");
-                }
+                stmt.setDate(3, java.sql.Date.valueOf(birthDateStr));
             } else {
-                stmt.setNull(3, java.sql.Types.DATE);
+                stmt.setNull(3, Types.DATE);
             }
-            
             stmt.setString(4, author.getBiography());
             stmt.setInt(5, author.getId());
-            
             stmt.executeUpdate();
         }
     }
 
     public void deleteAuthor(int id) throws SQLException {
         String sql = "DELETE FROM authors WHERE id = ?";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
         }
     }
 
     public List<Author> getAuthorsByBookId(int bookId) throws SQLException {
-        String sql = "SELECT a.id, a.first_name, a.last_name, a.birth_date, a.biography FROM authors a " +
-                     "JOIN book_authors ba ON a.id = ba.author_id " +
-                     "WHERE ba.book_id = ? ORDER BY ba.author_order";
+        String sql = "SELECT a.id, a.first_name, a.last_name, a.birth_date, a.biography FROM authors a JOIN book_authors ba ON a.id = ba.author_id WHERE ba.book_id = ? ORDER BY ba.author_order";
         List<Author> authors = new ArrayList<>();
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
             ResultSet rs = stmt.executeQuery();
-            
             while (rs.next()) {
                 authors.add(mapResultSetToAuthor(rs));
             }
