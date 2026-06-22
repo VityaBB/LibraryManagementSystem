@@ -17,6 +17,15 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- SonarCloud Configuration -->
+        <sonar.organization>vityabb</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>VityaBB_LibraryManagementSystem</sonar.projectKey>
+        <sonar.projectName>Library Management System</sonar.projectName>
+        <sonar.java.source>17</sonar.java.source>
+        <sonar.sources>src/main/java</sonar.sources>
+        <sonar.exclusions>**/target/**,**/*.sql</sonar.exclusions>
     </properties>
 
     <dependencies>
@@ -62,6 +71,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- SonarCloud Scanner -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
             </plugin>
         </plugins>
     </build>
