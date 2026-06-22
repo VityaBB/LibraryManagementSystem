@@ -3,8 +3,12 @@ on:
   push:
     branches:
       - main
+      - feature/jdbc
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - feature/jdbc
 jobs:
   build:
     name: Build and analyze
