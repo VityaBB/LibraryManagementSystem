@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
-import com.library.dto.AuthorDTO;
-import com.library.dto.GenreDTO;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +19,6 @@ public class BookResponseDTO {
     private Integer availableCopies;
     private Integer pageCount;
     private String description;
-    private List<AuthorDTO> authors;
-    private List<GenreDTO> genres;
+    private List<AuthorResponseDTO> authors;
+    private List<GenreResponseDTO> genres;
 }
