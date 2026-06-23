@@ -1,12 +1,12 @@
 package com.library.service;
 
-import com.library.dto.AuthorDTO;
-import com.library.dto.GenreDTO;
 import com.library.dto.common.AuthorIdDTO;
 import com.library.dto.common.GenreIdDTO;
 import com.library.dto.create.BookCreateDTO;
 import com.library.dto.update.BookUpdateDTO;
+import com.library.dto.response.AuthorResponseDTO;
 import com.library.dto.response.BookResponseDTO;
+import com.library.dto.response.GenreResponseDTO;
 import com.library.model.Author;
 import com.library.model.Book;
 import com.library.model.Genre;
@@ -163,21 +163,21 @@ public class BookService {
 
         if (book.getAuthors() != null) {
             dto.setAuthors(book.getAuthors().stream()
-                    .map(this::convertAuthorToDTO)
+                    .map(this::convertAuthorToResponseDTO)
                     .collect(Collectors.toList()));
         }
 
         if (book.getGenres() != null) {
             dto.setGenres(book.getGenres().stream()
-                    .map(this::convertGenreToDTO)
+                    .map(this::convertGenreToResponseDTO)
                     .collect(Collectors.toList()));
         }
 
         return dto;
     }
 
-    private AuthorDTO convertAuthorToDTO(Author author) {
-        AuthorDTO dto = new AuthorDTO();
+    private AuthorResponseDTO convertAuthorToResponseDTO(Author author) {
+        AuthorResponseDTO dto = new AuthorResponseDTO();
         dto.setId(author.getId());
         dto.setFirstName(author.getFirstName());
         dto.setLastName(author.getLastName());
@@ -187,8 +187,8 @@ public class BookService {
         return dto;
     }
 
-    private GenreDTO convertGenreToDTO(Genre genre) {
-        GenreDTO dto = new GenreDTO();
+    private GenreResponseDTO convertGenreToResponseDTO(Genre genre) {
+        GenreResponseDTO dto = new GenreResponseDTO();
         dto.setId(genre.getId());
         dto.setName(genre.getName());
         dto.setDescription(genre.getDescription());
