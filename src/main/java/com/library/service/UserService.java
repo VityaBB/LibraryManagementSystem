@@ -1,6 +1,8 @@
 package com.library.service;
 
-import com.library.dto.UserDTO;
+import com.library.dto.create.UserCreateDTO;
+import com.library.dto.update.UserUpdateDTO;
+import com.library.dto.response.UserResponseDTO;
 import com.library.model.User;
 import com.library.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,24 +16,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public Page<UserDTO> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(this::convertToDTO);
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public UserDTO getUserById(Long id) {
+    public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        return convertToDTO(user);
+        return convertToResponseDTO(user);
     }
 
-    public UserDTO getUserByEmail(String email) {
+    public UserResponseDTO getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        return convertToDTO(user);
+        return convertToResponseDTO(user);
     }
 
     @Transactional
-    public UserDTO createUser(UserDTO dto) {
+    public UserResponseDTO createUser(UserCreateDTO dto) {
         User user = new User();
         user.setEmail(dto.getEmail());
         user.setPasswordHash(dto.getPasswordHash());
@@ -41,15 +43,18 @@ public class UserService {
         user.setAddress(dto.getAddress());
         user.setRole(dto.getRole());
         user.setIsActive(true);
-        return convertToDTO(userRepository.save(user));
+        return convertToResponseDTO(userRepository.save(user));
     }
 
     @Transactional
-    public UserDTO updateUser(Long id, UserDTO dto) {
+    public UserResponseDTO updateUser(Long id, UserUpdateDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         if (dto.getEmail() != null) {
             user.setEmail(dto.getEmail());
+        }
+        if (dto.getPasswordHash() != null) {
+            user.setPasswordHash(dto.getPasswordHash());
         }
         if (dto.getFirstName() != null) {
             user.setFirstName(dto.getFirstName());
@@ -69,7 +74,7 @@ public class UserService {
         if (dto.getIsActive() != null) {
             user.setIsActive(dto.getIsActive());
         }
-        return convertToDTO(userRepository.save(user));
+        return convertToResponseDTO(userRepository.save(user));
     }
 
     @Transactional
@@ -77,11 +82,10 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    private UserDTO convertToDTO(User user) {
-        UserDTO dto = new UserDTO();
+    private UserResponseDTO convertToResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
-        dto.setPasswordHash(user.getPasswordHash());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setFullName(user.getFullName());

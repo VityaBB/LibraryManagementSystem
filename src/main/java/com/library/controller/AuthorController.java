@@ -1,6 +1,8 @@
 package com.library.controller;
 
-import com.library.dto.AuthorDTO;
+import com.library.dto.create.AuthorCreateDTO;
+import com.library.dto.update.AuthorUpdateDTO;
+import com.library.dto.response.AuthorResponseDTO;
 import com.library.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,24 +21,24 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping
-    public ResponseEntity<Page<AuthorDTO>> getAllAuthors(
+    public ResponseEntity<Page<AuthorResponseDTO>> getAllAuthors(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(authorService.getAllAuthors(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable Long id) {
+    public ResponseEntity<AuthorResponseDTO> getAuthorById(@PathVariable Long id) {
         return ResponseEntity.ok(authorService.getAuthorById(id));
     }
 
     @PostMapping
-    public ResponseEntity<AuthorDTO> createAuthor(@RequestBody AuthorDTO dto) {
+    public ResponseEntity<AuthorResponseDTO> createAuthor(@RequestBody AuthorCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authorService.createAuthor(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable Long id, @RequestBody AuthorDTO dto) {
+    public ResponseEntity<AuthorResponseDTO> updateAuthor(@PathVariable Long id, @RequestBody AuthorUpdateDTO dto) {
         return ResponseEntity.ok(authorService.updateAuthor(id, dto));
     }
 

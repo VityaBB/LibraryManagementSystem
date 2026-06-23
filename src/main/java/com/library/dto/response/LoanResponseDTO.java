@@ -1,4 +1,4 @@
-package com.library.dto;
+package com.library.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoanDTO {
+public class LoanResponseDTO {
     private Long id;
     private Long bookId;
     private String bookTitle;

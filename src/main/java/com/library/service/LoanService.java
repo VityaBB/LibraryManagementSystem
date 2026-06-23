@@ -1,21 +1,23 @@
 package com.library.service;
 
-import com.library.dto.LoanDTO;
+import com.library.dto.create.LoanCreateDTO;
+import com.library.dto.update.LoanUpdateDTO;
+import com.library.dto.response.LoanResponseDTO;
 import com.library.model.Book;
 import com.library.model.Loan;
 import com.library.model.User;
 import com.library.repository.BookRepository;
 import com.library.repository.LoanRepository;
 import com.library.repository.UserRepository;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,25 +26,25 @@ public class LoanService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
 
-    public Page<LoanDTO> getAllLoans(Pageable pageable) {
-        return loanRepository.findAll(pageable).map(this::convertToDTO);
+    public Page<LoanResponseDTO> getAllLoans(Pageable pageable) {
+        return loanRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public List<LoanDTO> getActiveLoans() {
+    public List<LoanResponseDTO> getActiveLoans() {
         return loanRepository.findByUserIdAndStatusIn(null, List.of("ACTIVE", "OVERDUE"))
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    public LoanDTO getLoanById(Long id) {
+    public LoanResponseDTO getLoanById(Long id) {
         Loan loan = loanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Выдача не найдена"));
-        return convertToDTO(loan);
+        return convertToResponseDTO(loan);
     }
 
     @Transactional
-    public LoanDTO createLoan(LoanDTO dto) {
+    public LoanResponseDTO createLoan(LoanCreateDTO dto) {
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new RuntimeException("Книга не найдена"));
         User user = userRepository.findById(dto.getUserId())
@@ -56,11 +58,11 @@ public class LoanService {
         loan.setStatus("ACTIVE");
         loan.setFineAmount(BigDecimal.ZERO);
 
-        return convertToDTO(loanRepository.save(loan));
+        return convertToResponseDTO(loanRepository.save(loan));
     }
 
     @Transactional
-    public LoanDTO returnBook(Long id, BigDecimal fineAmount) {
+    public LoanResponseDTO returnBook(Long id, BigDecimal fineAmount) {
         Loan loan = loanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Выдача не найдена"));
 
@@ -72,7 +74,35 @@ public class LoanService {
             }
         }
 
-        return convertToDTO(loanRepository.save(loan));
+        return convertToResponseDTO(loanRepository.save(loan));
+    }
+
+    @Transactional
+    public LoanResponseDTO updateLoan(Long id, LoanUpdateDTO dto) {
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Выдача не найдена"));
+
+        if (dto.getBookId() != null) {
+            Book book = bookRepository.findById(dto.getBookId())
+                    .orElseThrow(() -> new RuntimeException("Книга не найдена"));
+            loan.setBook(book);
+        }
+
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+            loan.setUser(user);
+        }
+
+        if (dto.getStatus() != null) {
+            loan.setStatus(dto.getStatus());
+        }
+
+        if (dto.getFineAmount() != null) {
+            loan.setFineAmount(dto.getFineAmount());
+        }
+
+        return convertToResponseDTO(loanRepository.save(loan));
     }
 
     @Transactional
@@ -80,8 +110,8 @@ public class LoanService {
         loanRepository.deleteById(id);
     }
 
-    private LoanDTO convertToDTO(Loan loan) {
-        LoanDTO dto = new LoanDTO();
+    private LoanResponseDTO convertToResponseDTO(Loan loan) {
+        LoanResponseDTO dto = new LoanResponseDTO();
         dto.setId(loan.getId());
         dto.setBookId(loan.getBook().getId());
         dto.setBookTitle(loan.getBook().getTitle());

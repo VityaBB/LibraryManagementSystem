@@ -1,8 +1,12 @@
 package com.library.service;
 
 import com.library.dto.AuthorDTO;
-import com.library.dto.BookDTO;
 import com.library.dto.GenreDTO;
+import com.library.dto.common.AuthorIdDTO;
+import com.library.dto.common.GenreIdDTO;
+import com.library.dto.create.BookCreateDTO;
+import com.library.dto.update.BookUpdateDTO;
+import com.library.dto.response.BookResponseDTO;
 import com.library.model.Author;
 import com.library.model.Book;
 import com.library.model.Genre;
@@ -11,13 +15,12 @@ import com.library.repository.AuthorRepository;
 import com.library.repository.BookRepository;
 import com.library.repository.GenreRepository;
 import com.library.repository.PublisherRepository;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +30,23 @@ public class BookService {
     private final GenreRepository genreRepository;
     private final PublisherRepository publisherRepository;
 
-    public Page<BookDTO> getAllBooks(Pageable pageable) {
-        return bookRepository.findAll(pageable).map(this::convertToDTO);
+    public Page<BookResponseDTO> getAllBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public Page<BookDTO> searchBooks(String title, Long authorId, Long genreId, Pageable pageable) {
+    public Page<BookResponseDTO> searchBooks(String title, Long authorId, Long genreId, Pageable pageable) {
         return bookRepository.searchBooks(title, authorId, genreId, pageable)
-                .map(this::convertToDTO);
+                .map(this::convertToResponseDTO);
     }
 
-    public BookDTO getBookById(Long id) {
+    public BookResponseDTO getBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Книга не найдена"));
-        return convertToDTO(book);
+        return convertToResponseDTO(book);
     }
 
     @Transactional
-    public BookDTO createBook(BookDTO dto) {
+    public BookResponseDTO createBook(BookCreateDTO dto) {
         Book book = new Book();
         book.setTitle(dto.getTitle());
         book.setIsbn(dto.getIsbn());
@@ -59,36 +62,48 @@ public class BookService {
         }
 
         if (dto.getAuthors() != null) {
-            for (AuthorDTO authorDTO : dto.getAuthors()) {
-                Author author = authorRepository.findById(authorDTO.getId())
+            for (AuthorIdDTO authorIdDTO : dto.getAuthors()) {
+                Author author = authorRepository.findById(authorIdDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Автор не найден"));
                 book.getAuthors().add(author);
             }
         }
 
         if (dto.getGenres() != null) {
-            for (GenreDTO genreDTO : dto.getGenres()) {
-                Genre genre = genreRepository.findById(genreDTO.getId())
+            for (GenreIdDTO genreIdDTO : dto.getGenres()) {
+                Genre genre = genreRepository.findById(genreIdDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Жанр не найден"));
                 book.getGenres().add(genre);
             }
         }
 
         Book savedBook = bookRepository.save(book);
-        return convertToDTO(savedBook);
+        return convertToResponseDTO(savedBook);
     }
 
     @Transactional
-    public BookDTO updateBook(Long id, BookDTO dto) {
+    public BookResponseDTO updateBook(Long id, BookUpdateDTO dto) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Книга не найдена"));
 
-        book.setTitle(dto.getTitle());
-        book.setIsbn(dto.getIsbn());
-        book.setPublicationYear(dto.getPublicationYear());
-        book.setTotalCopies(dto.getTotalCopies());
-        book.setPageCount(dto.getPageCount());
-        book.setDescription(dto.getDescription());
+        if (dto.getTitle() != null) {
+            book.setTitle(dto.getTitle());
+        }
+        if (dto.getIsbn() != null) {
+            book.setIsbn(dto.getIsbn());
+        }
+        if (dto.getPublicationYear() != null) {
+            book.setPublicationYear(dto.getPublicationYear());
+        }
+        if (dto.getTotalCopies() != null) {
+            book.setTotalCopies(dto.getTotalCopies());
+        }
+        if (dto.getPageCount() != null) {
+            book.setPageCount(dto.getPageCount());
+        }
+        if (dto.getDescription() != null) {
+            book.setDescription(dto.getDescription());
+        }
 
         if (dto.getPublisherId() != null) {
             Publisher publisher = publisherRepository.findById(dto.getPublisherId())
@@ -96,25 +111,25 @@ public class BookService {
             book.setPublisher(publisher);
         }
 
-        book.getAuthors().clear();
         if (dto.getAuthors() != null) {
-            for (AuthorDTO authorDTO : dto.getAuthors()) {
-                Author author = authorRepository.findById(authorDTO.getId())
+            book.getAuthors().clear();
+            for (AuthorIdDTO authorIdDTO : dto.getAuthors()) {
+                Author author = authorRepository.findById(authorIdDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Автор не найден"));
                 book.getAuthors().add(author);
             }
         }
 
-        book.getGenres().clear();
         if (dto.getGenres() != null) {
-            for (GenreDTO genreDTO : dto.getGenres()) {
-                Genre genre = genreRepository.findById(genreDTO.getId())
+            book.getGenres().clear();
+            for (GenreIdDTO genreIdDTO : dto.getGenres()) {
+                Genre genre = genreRepository.findById(genreIdDTO.getId())
                         .orElseThrow(() -> new RuntimeException("Жанр не найден"));
                 book.getGenres().add(genre);
             }
         }
 
-        return convertToDTO(bookRepository.save(book));
+        return convertToResponseDTO(bookRepository.save(book));
     }
 
     @Transactional
@@ -122,8 +137,8 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    private BookDTO convertToDTO(Book book) {
-        BookDTO dto = new BookDTO();
+    private BookResponseDTO convertToResponseDTO(Book book) {
+        BookResponseDTO dto = new BookResponseDTO();
         dto.setId(book.getId());
         dto.setTitle(book.getTitle());
         dto.setIsbn(book.getIsbn());

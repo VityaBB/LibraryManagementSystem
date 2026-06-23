@@ -1,6 +1,8 @@
 package com.library.controller;
 
-import com.library.dto.UserDTO;
+import com.library.dto.create.UserCreateDTO;
+import com.library.dto.update.UserUpdateDTO;
+import com.library.dto.response.UserResponseDTO;
 import com.library.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,29 +21,29 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Page<UserDTO>> getAllUsers(
+    public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/email")
-    public ResponseEntity<UserDTO> getUserByEmail(@RequestParam String email) {
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@RequestParam String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO dto) {
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.createUser(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO dto) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO dto) {
         return ResponseEntity.ok(userService.updateUser(id, dto));
     }
 

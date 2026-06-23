@@ -1,14 +1,16 @@
-package com.library.dto;
+package com.library.dto.response;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
+import com.library.dto.AuthorDTO;
+import com.library.dto.GenreDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDTO {
+public class BookResponseDTO {
     private Long id;
     private String title;
     private String isbn;

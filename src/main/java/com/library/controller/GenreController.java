@@ -1,6 +1,8 @@
 package com.library.controller;
 
-import com.library.dto.GenreDTO;
+import com.library.dto.create.GenreCreateDTO;
+import com.library.dto.update.GenreUpdateDTO;
+import com.library.dto.response.GenreResponseDTO;
 import com.library.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,24 +21,24 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping
-    public ResponseEntity<Page<GenreDTO>> getAllGenres(
+    public ResponseEntity<Page<GenreResponseDTO>> getAllGenres(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(genreService.getAllGenres(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GenreDTO> getGenreById(@PathVariable Long id) {
+    public ResponseEntity<GenreResponseDTO> getGenreById(@PathVariable Long id) {
         return ResponseEntity.ok(genreService.getGenreById(id));
     }
 
     @PostMapping
-    public ResponseEntity<GenreDTO> createGenre(@RequestBody GenreDTO dto) {
+    public ResponseEntity<GenreResponseDTO> createGenre(@RequestBody GenreCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(genreService.createGenre(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GenreDTO> updateGenre(@PathVariable Long id, @RequestBody GenreDTO dto) {
+    public ResponseEntity<GenreResponseDTO> updateGenre(@PathVariable Long id, @RequestBody GenreUpdateDTO dto) {
         return ResponseEntity.ok(genreService.updateGenre(id, dto));
     }
 

@@ -1,6 +1,8 @@
 package com.library.service;
 
-import com.library.dto.GenreDTO;
+import com.library.dto.create.GenreCreateDTO;
+import com.library.dto.update.GenreUpdateDTO;
+import com.library.dto.response.GenreResponseDTO;
 import com.library.model.Genre;
 import com.library.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,31 +16,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class GenreService {
     private final GenreRepository genreRepository;
 
-    public Page<GenreDTO> getAllGenres(Pageable pageable) {
-        return genreRepository.findAll(pageable).map(this::convertToDTO);
+    public Page<GenreResponseDTO> getAllGenres(Pageable pageable) {
+        return genreRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public GenreDTO getGenreById(Long id) {
+    public GenreResponseDTO getGenreById(Long id) {
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Жанр не найден"));
-        return convertToDTO(genre);
+        return convertToResponseDTO(genre);
     }
 
     @Transactional
-    public GenreDTO createGenre(GenreDTO dto) {
+    public GenreResponseDTO createGenre(GenreCreateDTO dto) {
         Genre genre = new Genre();
         genre.setName(dto.getName());
         genre.setDescription(dto.getDescription());
-        return convertToDTO(genreRepository.save(genre));
+        return convertToResponseDTO(genreRepository.save(genre));
     }
 
     @Transactional
-    public GenreDTO updateGenre(Long id, GenreDTO dto) {
+    public GenreResponseDTO updateGenre(Long id, GenreUpdateDTO dto) {
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Жанр не найден"));
-        genre.setName(dto.getName());
-        genre.setDescription(dto.getDescription());
-        return convertToDTO(genreRepository.save(genre));
+        if (dto.getName() != null) {
+            genre.setName(dto.getName());
+        }
+        if (dto.getDescription() != null) {
+            genre.setDescription(dto.getDescription());
+        }
+        return convertToResponseDTO(genreRepository.save(genre));
     }
 
     @Transactional
@@ -46,8 +52,8 @@ public class GenreService {
         genreRepository.deleteById(id);
     }
 
-    private GenreDTO convertToDTO(Genre genre) {
-        GenreDTO dto = new GenreDTO();
+    private GenreResponseDTO convertToResponseDTO(Genre genre) {
+        GenreResponseDTO dto = new GenreResponseDTO();
         dto.setId(genre.getId());
         dto.setName(genre.getName());
         dto.setDescription(genre.getDescription());

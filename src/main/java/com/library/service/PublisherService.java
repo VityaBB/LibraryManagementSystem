@@ -1,6 +1,8 @@
 package com.library.service;
 
-import com.library.dto.PublisherDTO;
+import com.library.dto.create.PublisherCreateDTO;
+import com.library.dto.update.PublisherUpdateDTO;
+import com.library.dto.response.PublisherResponseDTO;
 import com.library.model.Publisher;
 import com.library.repository.PublisherRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,37 +16,47 @@ import org.springframework.transaction.annotation.Transactional;
 public class PublisherService {
     private final PublisherRepository publisherRepository;
 
-    public Page<PublisherDTO> getAllPublishers(Pageable pageable) {
-        return publisherRepository.findAll(pageable).map(this::convertToDTO);
+    public Page<PublisherResponseDTO> getAllPublishers(Pageable pageable) {
+        return publisherRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public PublisherDTO getPublisherById(Long id) {
+    public PublisherResponseDTO getPublisherById(Long id) {
         Publisher publisher = publisherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Издатель не найден"));
-        return convertToDTO(publisher);
+        return convertToResponseDTO(publisher);
     }
 
     @Transactional
-    public PublisherDTO createPublisher(PublisherDTO dto) {
+    public PublisherResponseDTO createPublisher(PublisherCreateDTO dto) {
         Publisher publisher = new Publisher();
         publisher.setName(dto.getName());
         publisher.setAddress(dto.getAddress());
         publisher.setPhone(dto.getPhone());
         publisher.setEmail(dto.getEmail());
         publisher.setWebsite(dto.getWebsite());
-        return convertToDTO(publisherRepository.save(publisher));
+        return convertToResponseDTO(publisherRepository.save(publisher));
     }
 
     @Transactional
-    public PublisherDTO updatePublisher(Long id, PublisherDTO dto) {
+    public PublisherResponseDTO updatePublisher(Long id, PublisherUpdateDTO dto) {
         Publisher publisher = publisherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Издатель не найден"));
-        publisher.setName(dto.getName());
-        publisher.setAddress(dto.getAddress());
-        publisher.setPhone(dto.getPhone());
-        publisher.setEmail(dto.getEmail());
-        publisher.setWebsite(dto.getWebsite());
-        return convertToDTO(publisherRepository.save(publisher));
+        if (dto.getName() != null) {
+            publisher.setName(dto.getName());
+        }
+        if (dto.getAddress() != null) {
+            publisher.setAddress(dto.getAddress());
+        }
+        if (dto.getPhone() != null) {
+            publisher.setPhone(dto.getPhone());
+        }
+        if (dto.getEmail() != null) {
+            publisher.setEmail(dto.getEmail());
+        }
+        if (dto.getWebsite() != null) {
+            publisher.setWebsite(dto.getWebsite());
+        }
+        return convertToResponseDTO(publisherRepository.save(publisher));
     }
 
     @Transactional
@@ -52,8 +64,8 @@ public class PublisherService {
         publisherRepository.deleteById(id);
     }
 
-    private PublisherDTO convertToDTO(Publisher publisher) {
-        PublisherDTO dto = new PublisherDTO();
+    private PublisherResponseDTO convertToResponseDTO(Publisher publisher) {
+        PublisherResponseDTO dto = new PublisherResponseDTO();
         dto.setId(publisher.getId());
         dto.setName(publisher.getName());
         dto.setAddress(publisher.getAddress());

@@ -1,34 +1,34 @@
 package com.library.service;
 
-import com.library.dto.AuthorDTO;
+import com.library.dto.create.AuthorCreateDTO;
+import com.library.dto.update.AuthorUpdateDTO;
+import com.library.dto.response.AuthorResponseDTO;
 import com.library.model.Author;
 import com.library.repository.AuthorRepository;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository authorRepository;
 
-    public Page<AuthorDTO> getAllAuthors(Pageable pageable) {
-        return authorRepository.findAll(pageable).map(this::convertToDTO);
+    public Page<AuthorResponseDTO> getAllAuthors(Pageable pageable) {
+        return authorRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public AuthorDTO getAuthorById(Long id) {
+    public AuthorResponseDTO getAuthorById(Long id) {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Автор не найден"));
-        return convertToDTO(author);
+        return convertToResponseDTO(author);
     }
 
     @Transactional
-    public AuthorDTO createAuthor(AuthorDTO dto) {
+    public AuthorResponseDTO createAuthor(AuthorCreateDTO dto) {
         Author author = new Author();
         author.setFirstName(dto.getFirstName());
         author.setLastName(dto.getLastName());
@@ -36,20 +36,26 @@ public class AuthorService {
             author.setBirthDate(LocalDate.parse(dto.getBirthDate()));
         }
         author.setBiography(dto.getBiography());
-        return convertToDTO(authorRepository.save(author));
+        return convertToResponseDTO(authorRepository.save(author));
     }
 
     @Transactional
-    public AuthorDTO updateAuthor(Long id, AuthorDTO dto) {
+    public AuthorResponseDTO updateAuthor(Long id, AuthorUpdateDTO dto) {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Автор не найден"));
-        author.setFirstName(dto.getFirstName());
-        author.setLastName(dto.getLastName());
+        if (dto.getFirstName() != null) {
+            author.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null) {
+            author.setLastName(dto.getLastName());
+        }
         if (dto.getBirthDate() != null) {
             author.setBirthDate(LocalDate.parse(dto.getBirthDate()));
         }
-        author.setBiography(dto.getBiography());
-        return convertToDTO(authorRepository.save(author));
+        if (dto.getBiography() != null) {
+            author.setBiography(dto.getBiography());
+        }
+        return convertToResponseDTO(authorRepository.save(author));
     }
 
     @Transactional
@@ -57,8 +63,8 @@ public class AuthorService {
         authorRepository.deleteById(id);
     }
 
-    private AuthorDTO convertToDTO(Author author) {
-        AuthorDTO dto = new AuthorDTO();
+    private AuthorResponseDTO convertToResponseDTO(Author author) {
+        AuthorResponseDTO dto = new AuthorResponseDTO();
         dto.setId(author.getId());
         dto.setFirstName(author.getFirstName());
         dto.setLastName(author.getLastName());
