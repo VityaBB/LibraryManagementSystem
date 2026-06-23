@@ -25,11 +25,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <!-- SonarCloud Configuration -->
         <sonar.organization>vityabb</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>VityaBB_LibraryManagementSystem</sonar.projectKey>
         <sonar.projectName>Library Management System</sonar.projectName>
         <sonar.exclusions>**/*.sql</sonar.exclusions>
+
+        <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
     </properties>
 
     <dependencies>
