@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loanService } from '../../services/loanService';
-import type { Loan } from '../../models/loan.model';
-import type { PageResponse } from '../../models/pagination.model';
+import { Loan } from '../../models/loan.model';
+import { PageResponse } from '../../models/pagination.model';
 
 const LoanList: React.FC = () => {
+  const navigate = useNavigate();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,7 +78,15 @@ const LoanList: React.FC = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>📖 Управление выдачами книг</h2>
-        <span className="badge bg-primary">Всего: {totalElements}</span>
+        <div>
+          <button 
+            className="btn btn-primary me-2"
+            onClick={() => navigate('/loans/new')}
+          >
+            ➕ Новая выдача
+          </button>
+          <span className="badge bg-primary">Всего: {totalElements}</span>
+        </div>
       </div>
 
       {error && (
@@ -120,6 +130,13 @@ const LoanList: React.FC = () => {
                   </td>
                   <td>{(loan.fineAmount || 0).toFixed(2)}</td>
                   <td>
+                    <button
+                      className="btn btn-sm btn-info me-1"
+                      onClick={() => navigate(`/loans/${loan.id}/edit`)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
                     {(loan.status === 'ACTIVE' || loan.status === 'OVERDUE') && (
                       <button
                         className="btn btn-sm btn-success me-1"

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authorService } from '../../services/authorService';
-import type { Author } from '../../models/author.model';
-import type { PageResponse } from '../../models/pagination.model';
+import { Author } from '../../models/author.model';
+import { PageResponse } from '../../models/pagination.model';
 
 const AuthorList: React.FC = () => {
+  const navigate = useNavigate();
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,7 +59,15 @@ const AuthorList: React.FC = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>✍️ Управление авторами</h2>
-        <span className="badge bg-primary">Всего: {totalElements}</span>
+        <div>
+          <button 
+            className="btn btn-primary me-2"
+            onClick={() => navigate('/authors/new')}
+          >
+            ➕ Новый автор
+          </button>
+          <span className="badge bg-primary">Всего: {totalElements}</span>
+        </div>
       </div>
 
       {error && (
@@ -93,6 +103,13 @@ const AuthorList: React.FC = () => {
                   <td>{author.fullName}</td>
                   <td>{author.birthDate ? new Date(author.birthDate).toLocaleDateString() : '—'}</td>
                   <td>
+                    <button
+                      className="btn btn-sm btn-info me-1"
+                      onClick={() => navigate(`/authors/${author.id}/edit`)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(author.id!)}

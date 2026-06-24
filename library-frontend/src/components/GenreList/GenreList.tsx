@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { genreService } from '../../services/genreService';
-import type { Genre } from '../../models/genre.model';
-import type { PageResponse } from '../../models/pagination.model';
+import { Genre } from '../../models/genre.model';
+import { PageResponse } from '../../models/pagination.model';
 
 const GenreList: React.FC = () => {
+  const navigate = useNavigate();
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,7 +59,15 @@ const GenreList: React.FC = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>🏷️ Управление жанрами</h2>
-        <span className="badge bg-primary">Всего: {totalElements}</span>
+        <div>
+          <button 
+            className="btn btn-primary me-2"
+            onClick={() => navigate('/genres/new')}
+          >
+            ➕ Новый жанр
+          </button>
+          <span className="badge bg-primary">Всего: {totalElements}</span>
+        </div>
       </div>
 
       {error && (
@@ -89,6 +99,13 @@ const GenreList: React.FC = () => {
                   <td>{genre.name}</td>
                   <td>{genre.description || '—'}</td>
                   <td>
+                    <button
+                      className="btn btn-sm btn-info me-1"
+                      onClick={() => navigate(`/genres/${genre.id}/edit`)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(genre.id!)}

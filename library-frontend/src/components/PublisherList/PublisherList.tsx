@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { publisherService } from '../../services/publisherService';
-import type { Publisher } from '../../models/publisher.model';
-import type { PageResponse } from '../../models/pagination.model';
+import { Publisher } from '../../models/publisher.model';
+import { PageResponse } from '../../models/pagination.model';
 
 const PublisherList: React.FC = () => {
+  const navigate = useNavigate();
   const [publishers, setPublishers] = useState<Publisher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,7 +59,15 @@ const PublisherList: React.FC = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>🏢 Управление издателями</h2>
-        <span className="badge bg-primary">Всего: {totalElements}</span>
+        <div>
+          <button 
+            className="btn btn-primary me-2"
+            onClick={() => navigate('/publishers/new')}
+          >
+            ➕ Новый издатель
+          </button>
+          <span className="badge bg-primary">Всего: {totalElements}</span>
+        </div>
       </div>
 
       {error && (
@@ -93,6 +103,13 @@ const PublisherList: React.FC = () => {
                   <td>{publisher.phone || '—'}</td>
                   <td>{publisher.email || '—'}</td>
                   <td>
+                    <button
+                      className="btn btn-sm btn-info me-1"
+                      onClick={() => navigate(`/publishers/${publisher.id}/edit`)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(publisher.id!)}

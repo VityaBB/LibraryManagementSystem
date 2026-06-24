@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/userService';
-import type { User } from '../../models/user.model';
-import type { PageResponse } from '../../models/pagination.model';
+import { User } from '../../models/user.model';
+import { PageResponse } from '../../models/pagination.model';
 
 const UserList: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -61,7 +63,15 @@ const UserList: React.FC = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>👤 Управление пользователями</h2>
-        <span className="badge bg-primary">Всего: {totalElements}</span>
+        <div>
+          <button 
+            className="btn btn-primary me-2"
+            onClick={() => navigate('/users/new')}
+          >
+            ➕ Новый пользователь
+          </button>
+          <span className="badge bg-primary">Всего: {totalElements}</span>
+        </div>
       </div>
 
       {error && (
@@ -109,6 +119,13 @@ const UserList: React.FC = () => {
                     </span>
                   </td>
                   <td>
+                    <button
+                      className="btn btn-sm btn-info me-1"
+                      onClick={() => navigate(`/users/${user.id}/edit`)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(user.id!)}

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { bookService } from '../../services/bookService';
-import type { Book } from '../../models/book.model';
-import type { PageResponse } from '../../models/pagination.model';
+import { Book } from '../../models/book.model';
+import { PageResponse } from '../../models/pagination.model';
 
 const BookList: React.FC = () => {
+  const navigate = useNavigate();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,7 +59,15 @@ const BookList: React.FC = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>📚 Управление книгами</h2>
-        <span className="badge bg-primary">Всего: {totalElements}</span>
+        <div>
+          <button 
+            className="btn btn-primary me-2"
+            onClick={() => navigate('/books/new')}
+          >
+            ➕ Новая книга
+          </button>
+          <span className="badge bg-primary">Всего: {totalElements}</span>
+        </div>
       </div>
 
       {error && (
@@ -103,6 +113,13 @@ const BookList: React.FC = () => {
                     </span>
                   </td>
                   <td>
+                    <button
+                      className="btn btn-sm btn-info me-1"
+                      onClick={() => navigate(`/books/${book.id}/edit`)}
+                      title="Редактировать"
+                    >
+                      ✏️
+                    </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(book.id!)}
