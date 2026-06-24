@@ -1,0 +1,22 @@
+.App {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.btn-sm {
+  padding: 0.2rem 0.5rem;
+}
