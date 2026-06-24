@@ -16,4 +16,5 @@ export interface PageRequest {
   title?: string;
   authorId?: number;
   genreId?: number;
+  publicationYear?: number;
 }

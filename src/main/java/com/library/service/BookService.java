@@ -34,8 +34,8 @@ public class BookService {
         return bookRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public Page<BookResponseDTO> searchBooks(String title, Long authorId, Long genreId, Pageable pageable) {
-        return bookRepository.searchBooks(title, authorId, genreId, pageable)
+    public Page<BookResponseDTO> searchBooks(String title, Long authorId, Long genreId, Integer publicationYear, Pageable pageable) {
+        return bookRepository.searchBooks(title, authorId, genreId, publicationYear, pageable)
                 .map(this::convertToResponseDTO);
     }
 

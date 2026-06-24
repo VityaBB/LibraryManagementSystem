@@ -20,6 +20,7 @@ const LoanForm: React.FC = () => {
   const [error, setError] = useState('');
   const [books, setBooks] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [selectedBookAvailable, setSelectedBookAvailable] = useState<number>(0);
 
   const [formData, setFormData] = useState<LoanFormData>({
     bookId: 0,
@@ -59,6 +60,10 @@ const LoanForm: React.FC = () => {
         status: loan.status,
         fineAmount: loan.fineAmount
       });
+      const book = books.find(b => b.id === loan.bookId);
+      if (book) {
+        setSelectedBookAvailable(book.availableCopies || 0);
+      }
     } catch (err) {
       setError('Ошибка загрузки выдачи');
       console.error(err);
@@ -69,6 +74,15 @@ const LoanForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isEdit) {
+      const book = books.find(b => b.id === formData.bookId);
+      if (book && (book.availableCopies || 0) <= 0) {
+        setError('Нет доступных экземпляров этой книги!');
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       if (isEdit) {
@@ -77,8 +91,9 @@ const LoanForm: React.FC = () => {
         await loanService.create(formData);
       }
       navigate('/loans');
-    } catch (err) {
-      setError('Ошибка сохранения');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Ошибка сохранения';
+      setError(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -93,11 +108,18 @@ const LoanForm: React.FC = () => {
         ? Number(value) 
         : value
     }));
+
+    if (name === 'bookId') {
+      const book = books.find(b => b.id === Number(value));
+      setSelectedBookAvailable(book?.availableCopies || 0);
+    }
   };
 
   if (loading && isEdit) {
     return <div className="text-center mt-5"><div className="spinner-border"></div></div>;
   }
+
+  const isBookAvailable = !isEdit && formData.bookId > 0 && selectedBookAvailable <= 0;
 
   return (
     <div className="container mt-4">
@@ -107,6 +129,13 @@ const LoanForm: React.FC = () => {
         </div>
         <div className="card-body">
           {error && <div className="alert alert-danger">{error}</div>}
+
+          {!isEdit && isBookAvailable && (
+            <div className="alert alert-warning">
+              ⚠️ У этой книги нет доступных экземпляров. Выдача невозможна.
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             <div className="row">
               <div className="col-md-6 mb-3">
@@ -117,6 +146,7 @@ const LoanForm: React.FC = () => {
                   value={formData.bookId}
                   onChange={handleChange}
                   required
+                  disabled={isEdit}
                 >
                   <option value={0}>Выберите книгу</option>
                   {books.map((book: any) => (
@@ -125,7 +155,13 @@ const LoanForm: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                {!isEdit && formData.bookId > 0 && (
+                  <small className="text-muted">
+                    Доступно экземпляров: {selectedBookAvailable}
+                  </small>
+                )}
               </div>
+
               <div className="col-md-6 mb-3">
                 <label className="form-label">Пользователь *</label>
                 <select
@@ -134,6 +170,7 @@ const LoanForm: React.FC = () => {
                   value={formData.userId}
                   onChange={handleChange}
                   required
+                  disabled={isEdit}
                 >
                   <option value={0}>Выберите пользователя</option>
                   {users.map((user: any) => (
@@ -144,6 +181,7 @@ const LoanForm: React.FC = () => {
                 </select>
               </div>
             </div>
+
             {isEdit && (
               <div className="row">
                 <div className="col-md-6 mb-3">
@@ -159,6 +197,7 @@ const LoanForm: React.FC = () => {
                     <option value="OVERDUE">OVERDUE</option>
                   </select>
                 </div>
+
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Штраф</label>
                   <input
@@ -173,8 +212,13 @@ const LoanForm: React.FC = () => {
                 </div>
               </div>
             )}
+
             <div className="d-flex gap-2 mt-3">
-              <button type="submit" className="btn btn-primary" disabled={loading}>
+              <button 
+                type="submit" 
+                className="btn btn-primary" 
+                disabled={loading || (!isEdit && isBookAvailable)}
+              >
                 {loading ? 'Сохранение...' : 'Сохранить'}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => navigate('/loans')}>

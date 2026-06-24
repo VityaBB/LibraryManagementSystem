@@ -4,6 +4,15 @@ import { loanService } from '../../services/loanService';
 import { Loan } from '../../models/loan.model';
 import { PageResponse } from '../../models/pagination.model';
 
+const formatDate = (dateString: string) => {
+  if (!dateString) return '—';
+  return new Date(dateString).toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
 const LoanList: React.FC = () => {
   const navigate = useNavigate();
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -121,8 +130,8 @@ const LoanList: React.FC = () => {
                   <td>{loan.id}</td>
                   <td>{loan.bookTitle || '—'}</td>
                   <td>{loan.userName || '—'}</td>
-                  <td>{new Date(loan.loanDate).toLocaleDateString()}</td>
-                  <td>{new Date(loan.dueDate).toLocaleDateString()}</td>
+                  <td>{formatDate(loan.loanDate)}</td>
+                  <td>{formatDate(loan.dueDate)}</td>
                   <td>
                     <span className={getStatusBadge(loan.status)}>
                       {loan.status}

@@ -50,6 +50,13 @@ public class LoanService {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
+        long activeLoansCount = loanRepository.countByBookIdAndStatusIn(book.getId(), List.of("ACTIVE", "OVERDUE"));
+        int availableCopies = book.getTotalCopies() - (int) activeLoansCount;
+
+        if (availableCopies <= 0) {
+            throw new RuntimeException("Нет доступных экземпляров книги. Доступно: " + availableCopies);
+        }
+
         Loan loan = new Loan();
         loan.setBook(book);
         loan.setUser(user);

@@ -25,10 +25,11 @@ public class BookController {
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Long authorId,
-            @RequestParam(required = false) Long genreId) {
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer publicationYear) {
         Page<BookResponseDTO> books;
-        if (title != null || authorId != null || genreId != null) {
-            books = bookService.searchBooks(title, authorId, genreId, pageable);
+        if (title != null || authorId != null || genreId != null || publicationYear != null) {
+            books = bookService.searchBooks(title, authorId, genreId, publicationYear, pageable);
         } else {
             books = bookService.getAllBooks(pageable);
         }

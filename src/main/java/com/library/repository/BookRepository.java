@@ -13,11 +13,13 @@ public interface BookRepository extends JpaRepository<Book, Long> {
            "LEFT JOIN b.genres g " +
            "WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
            "AND (:authorId IS NULL OR a.id = :authorId) " +
-           "AND (:genreId IS NULL OR g.id = :genreId)")
+           "AND (:genreId IS NULL OR g.id = :genreId) " +
+           "AND (:publicationYear IS NULL OR b.publicationYear = :publicationYear)")
     Page<Book> searchBooks(
         @Param("title") String title,
         @Param("authorId") Long authorId,
         @Param("genreId") Long genreId,
+        @Param("publicationYear") Integer publicationYear,
         Pageable pageable
     );
 }

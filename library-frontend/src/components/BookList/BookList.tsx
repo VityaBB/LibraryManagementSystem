@@ -13,14 +13,33 @@ const BookList: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
 
+  const [filters, setFilters] = useState({
+    title: '',
+    publicationYear: ''
+  });
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    title: '',
+    publicationYear: ''
+  });
+
   useEffect(() => {
     fetchBooks();
-  }, [page]);
+  }, [page, appliedFilters]);
 
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const response: PageResponse<Book> = await bookService.getAll({ page, size: 10 });
+      const params: any = { page, size: 10 };
+      
+      if (appliedFilters.title) {
+        params.title = appliedFilters.title;
+      }
+      if (appliedFilters.publicationYear) {
+        params.publicationYear = parseInt(appliedFilters.publicationYear);
+      }
+      
+      const response: PageResponse<Book> = await bookService.getAll(params);
       setBooks(response.content);
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements);
@@ -31,6 +50,25 @@ const BookList: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const applyFilters = () => {
+    setAppliedFilters({
+      title: filters.title.trim(),
+      publicationYear: filters.publicationYear.trim()
+    });
+    setPage(0);
+  };
+
+  const resetFilters = () => {
+    setFilters({ title: '', publicationYear: '' });
+    setAppliedFilters({ title: '', publicationYear: '' });
+    setPage(0);
   };
 
   const handleDelete = async (id: number) => {
@@ -77,6 +115,51 @@ const BookList: React.FC = () => {
         </div>
       )}
 
+      {/* Фильтры */}
+      <div className="card mb-3">
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label">Название</label>
+              <input
+                type="text"
+                className="form-control"
+                name="title"
+                value={filters.title}
+                onChange={handleFilterChange}
+                placeholder="Поиск по названию..."
+              />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Год публикации</label>
+              <input
+                type="number"
+                className="form-control"
+                name="publicationYear"
+                value={filters.publicationYear}
+                onChange={handleFilterChange}
+                placeholder="Например: 2024"
+                min="1000"
+                max={new Date().getFullYear()}
+              />
+            </div>
+            <div className="col-md-5 d-flex align-items-end gap-2">
+              <button className="btn btn-primary" onClick={applyFilters}>
+                🔍 Применить
+              </button>
+              <button className="btn btn-secondary" onClick={resetFilters}>
+                🔄 Сбросить
+              </button>
+              {(appliedFilters.title || appliedFilters.publicationYear) && (
+                <span className="badge bg-info text-dark">
+                  Фильтры применены
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="table-responsive">
         <table className="table table-striped table-hover">
           <thead className="table-dark">
@@ -95,7 +178,11 @@ const BookList: React.FC = () => {
           <tbody>
             {books.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center text-muted py-3">Нет данных</td>
+                <td colSpan={9} className="text-center text-muted py-3">
+                  {appliedFilters.title || appliedFilters.publicationYear ? 
+                    'Нет книг, соответствующих фильтрам' : 
+                    'Нет данных'}
+                </td>
               </tr>
             ) : (
               books.map((book) => (
