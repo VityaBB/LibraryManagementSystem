@@ -27,7 +27,6 @@ public class BookController {
             @RequestParam(required = false) Long authorId,
             @RequestParam(required = false) Long genreId,
             @RequestParam(required = false) Integer publicationYear) {
-        
         Page<BookResponseDTO> books;
         if (title != null || authorId != null || genreId != null || publicationYear != null) {
             books = bookService.searchBooks(title, authorId, genreId, publicationYear, pageable);

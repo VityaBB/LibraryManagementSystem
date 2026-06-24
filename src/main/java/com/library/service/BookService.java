@@ -35,11 +35,18 @@ public class BookService {
     }
 
     public Page<BookResponseDTO> searchBooks(String title, Long authorId, Long genreId, Integer publicationYear, Pageable pageable) {
-        if (title != null && title.isEmpty()) {
-            title = null;
+        if (title != null && !title.isEmpty() && publicationYear != null && publicationYear > 0) {
+            return bookRepository.findByTitleContainingIgnoreCaseAndPublicationYear(title, publicationYear, pageable)
+                    .map(this::convertToResponseDTO);
+        } else if (title != null && !title.isEmpty()) {
+            return bookRepository.findByTitleContainingIgnoreCase(title, pageable)
+                    .map(this::convertToResponseDTO);
+        } else if (publicationYear != null && publicationYear > 0) {
+            return bookRepository.findByPublicationYear(publicationYear, pageable)
+                    .map(this::convertToResponseDTO);
+        } else {
+            return bookRepository.findAll(pageable).map(this::convertToResponseDTO);
         }
-        return bookRepository.searchBooks(title, authorId, genreId, publicationYear, pageable)
-                .map(this::convertToResponseDTO);
     }
 
     public BookResponseDTO getBookById(Long id) {
