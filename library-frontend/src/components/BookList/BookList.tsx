@@ -36,8 +36,10 @@ const BookList: React.FC = () => {
         params.title = appliedFilters.title;
       }
       if (appliedFilters.publicationYear) {
-        params.publicationYear = parseInt(appliedFilters.publicationYear);
+        params.publicationYear = Number(appliedFilters.publicationYear);
       }
+      
+      console.log('📤 Отправка параметров:', params);
       
       const response: PageResponse<Book> = await bookService.getAll(params);
       setBooks(response.content);
@@ -57,15 +59,35 @@ const BookList: React.FC = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  const applyFilters = () => {
-    setAppliedFilters({
-      title: filters.title.trim(),
-      publicationYear: filters.publicationYear.trim()
-    });
+  const applyTitleFilter = () => {
+    setAppliedFilters(prev => ({
+      ...prev,
+      title: filters.title.trim()
+    }));
     setPage(0);
   };
 
-  const resetFilters = () => {
+  const applyYearFilter = () => {
+    setAppliedFilters(prev => ({
+      ...prev,
+      publicationYear: filters.publicationYear.trim()
+    }));
+    setPage(0);
+  };
+
+  const resetTitleFilter = () => {
+    setFilters(prev => ({ ...prev, title: '' }));
+    setAppliedFilters(prev => ({ ...prev, title: '' }));
+    setPage(0);
+  };
+
+  const resetYearFilter = () => {
+    setFilters(prev => ({ ...prev, publicationYear: '' }));
+    setAppliedFilters(prev => ({ ...prev, publicationYear: '' }));
+    setPage(0);
+  };
+
+  const resetAllFilters = () => {
     setFilters({ title: '', publicationYear: '' });
     setAppliedFilters({ title: '', publicationYear: '' });
     setPage(0);
@@ -119,44 +141,114 @@ const BookList: React.FC = () => {
       <div className="card mb-3">
         <div className="card-body">
           <div className="row g-3">
+            {/* Фильтр по названию */}
             <div className="col-md-4">
               <label className="form-label">Название</label>
-              <input
-                type="text"
-                className="form-control"
-                name="title"
-                value={filters.title}
-                onChange={handleFilterChange}
-                placeholder="Поиск по названию..."
-              />
+              <div className="d-flex gap-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  name="title"
+                  value={filters.title}
+                  onChange={handleFilterChange}
+                  placeholder="Поиск по названию..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      applyTitleFilter();
+                    }
+                  }}
+                />
+                <button 
+                  className="btn btn-primary" 
+                  onClick={applyTitleFilter}
+                  title="Применить фильтр по названию"
+                >
+                  🔍
+                </button>
+                {appliedFilters.title && (
+                  <button 
+                    className="btn btn-outline-secondary" 
+                    onClick={resetTitleFilter}
+                    title="Сбросить фильтр по названию"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              {appliedFilters.title && (
+                <small className="text-success">
+                  Фильтр: "{appliedFilters.title}"
+                </small>
+              )}
             </div>
+
+            {/* Фильтр по году */}
             <div className="col-md-3">
               <label className="form-label">Год публикации</label>
-              <input
-                type="number"
-                className="form-control"
-                name="publicationYear"
-                value={filters.publicationYear}
-                onChange={handleFilterChange}
-                placeholder="Например: 2024"
-                min="1000"
-                max={new Date().getFullYear()}
-              />
+              <div className="d-flex gap-2">
+                <input
+                  type="number"
+                  className="form-control"
+                  name="publicationYear"
+                  value={filters.publicationYear}
+                  onChange={handleFilterChange}
+                  placeholder="Например: 2024"
+                  min="1000"
+                  max={new Date().getFullYear()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      applyYearFilter();
+                    }
+                  }}
+                />
+                <button 
+                  className="btn btn-primary" 
+                  onClick={applyYearFilter}
+                  title="Применить фильтр по году"
+                >
+                  🔍
+                </button>
+                {appliedFilters.publicationYear && (
+                  <button 
+                    className="btn btn-outline-secondary" 
+                    onClick={resetYearFilter}
+                    title="Сбросить фильтр по году"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              {appliedFilters.publicationYear && (
+                <small className="text-success">
+                  Фильтр: {appliedFilters.publicationYear} г.
+                </small>
+              )}
             </div>
-            <div className="col-md-5 d-flex align-items-end gap-2">
-              <button className="btn btn-primary" onClick={applyFilters}>
-                🔍 Применить
-              </button>
-              <button className="btn btn-secondary" onClick={resetFilters}>
-                🔄 Сбросить
-              </button>
+
+            {/* Кнопка сброса всех фильтров */}
+            <div className="col-md-3 d-flex align-items-end">
               {(appliedFilters.title || appliedFilters.publicationYear) && (
-                <span className="badge bg-info text-dark">
-                  Фильтры применены
-                </span>
+                <button 
+                  className="btn btn-outline-danger w-100" 
+                  onClick={resetAllFilters}
+                >
+                  🔄 Сбросить все фильтры
+                </button>
               )}
             </div>
           </div>
+
+          {/* Индикатор активных фильтров */}
+          {(appliedFilters.title || appliedFilters.publicationYear) && (
+            <div className="mt-2">
+              <span className="badge bg-info text-dark">
+                Активные фильтры: 
+                {appliedFilters.title && ` Название: "${appliedFilters.title}"`}
+                {appliedFilters.title && appliedFilters.publicationYear && ' |'}
+                {appliedFilters.publicationYear && ` Год: ${appliedFilters.publicationYear}`}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

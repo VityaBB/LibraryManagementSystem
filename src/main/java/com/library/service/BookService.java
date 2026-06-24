@@ -35,6 +35,9 @@ public class BookService {
     }
 
     public Page<BookResponseDTO> searchBooks(String title, Long authorId, Long genreId, Integer publicationYear, Pageable pageable) {
+        if (title != null && title.isEmpty()) {
+            title = null;
+        }
         return bookRepository.searchBooks(title, authorId, genreId, publicationYear, pageable)
                 .map(this::convertToResponseDTO);
     }

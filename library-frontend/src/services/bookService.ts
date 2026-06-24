@@ -1,17 +1,16 @@
 import { api } from './api';
 import { API_ENDPOINTS } from '../utils/constants';
-import   { Book, BookCreateDTO, BookUpdateDTO } from '../models/book.model';
-import   { PageResponse, PageRequest } from '../models/pagination.model';
+import { Book, BookCreateDTO, BookUpdateDTO } from '../models/book.model';
+import { PageResponse, PageRequest } from '../models/pagination.model';
 
 export const bookService = {
-  getAll: async (params?: PageRequest) => {
+  getAll: async (params?: PageRequest & { publicationYear?: number }) => {
     const response = await api.get<PageResponse<Book>>(API_ENDPOINTS.BOOKS, {
       params: {
         page: params?.page || 0,
         size: params?.size || 10,
-        title: params?.title,
-        authorId: params?.authorId,
-        genreId: params?.genreId
+        title: params?.title || undefined,
+        publicationYear: params?.publicationYear || undefined
       }
     });
     return response.data;
