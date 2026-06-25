@@ -25,8 +25,14 @@ public class LoanController {
 
     @GetMapping
     public ResponseEntity<Page<LoanResponseDTO>> getAllLoans(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(loanService.getAllLoans(pageable));
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) String bookTitle,
+            @RequestParam(required = false) String userName) {
+        System.out.println("📥 Получен запрос с параметрами:");
+        System.out.println("  bookTitle: " + bookTitle);
+        System.out.println("  userName: " + userName);
+        Page<LoanResponseDTO> loans = loanService.searchLoans(bookTitle, userName, pageable);
+        return ResponseEntity.ok(loans);
     }
 
     @GetMapping("/active")

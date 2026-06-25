@@ -15,6 +15,11 @@ export class LoanListComponent implements OnInit {
   page = 0;
   totalPages = 0;
   totalElements = 0;
+  
+  bookTitleFilter = '';
+  userNameFilter = '';
+  appliedBookTitle = '';
+  appliedUserName = '';
 
   constructor(private loanService: LoanService) {}
 
@@ -24,8 +29,17 @@ export class LoanListComponent implements OnInit {
 
   fetchLoans(): void {
     this.loading = true;
-    this.loanService.getAll({ page: this.page, size: 10 }).subscribe({
+    const params: any = { page: this.page, size: 10 };
+    if (this.appliedBookTitle) {
+      params.bookTitle = this.appliedBookTitle;
+    }
+    if (this.appliedUserName) {
+      params.userName = this.appliedUserName;
+    }
+    console.log('📤 Отправка параметров:', params);
+    this.loanService.getAll(params).subscribe({
       next: (response: PageResponse<Loan>) => {
+        console.log('📥 Получен ответ:', response);
         this.loans = response.content;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
@@ -38,6 +52,41 @@ export class LoanListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyBookTitleFilter(): void {
+    this.appliedBookTitle = this.bookTitleFilter.trim();
+    this.page = 0;
+    this.fetchLoans();
+  }
+
+  applyUserNameFilter(): void {
+    this.appliedUserName = this.userNameFilter.trim();
+    this.page = 0;
+    this.fetchLoans();
+  }
+
+  resetBookTitleFilter(): void {
+    this.bookTitleFilter = '';
+    this.appliedBookTitle = '';
+    this.page = 0;
+    this.fetchLoans();
+  }
+
+  resetUserNameFilter(): void {
+    this.userNameFilter = '';
+    this.appliedUserName = '';
+    this.page = 0;
+    this.fetchLoans();
+  }
+
+  resetAllFilters(): void {
+    this.bookTitleFilter = '';
+    this.userNameFilter = '';
+    this.appliedBookTitle = '';
+    this.appliedUserName = '';
+    this.page = 0;
+    this.fetchLoans();
   }
 
   deleteLoan(id: number): void {

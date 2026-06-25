@@ -13,10 +13,17 @@ export class LoanService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(params?: PageRequest): Observable<PageResponse<Loan>> {
+  getAll(params?: PageRequest & { bookTitle?: string; userName?: string }): Observable<PageResponse<Loan>> {
     let httpParams = new HttpParams()
       .set('page', params?.page?.toString() || '0')
       .set('size', params?.size?.toString() || '10');
+    if (params?.bookTitle) {
+      httpParams = httpParams.set('bookTitle', params.bookTitle);
+    }
+    if (params?.userName) {
+      httpParams = httpParams.set('userName', params.userName);
+    }
+    console.log('📤 HTTP запрос:', this.baseUrl, 'с параметрами:', httpParams.toString());
     return this.http.get<PageResponse<Loan>>(this.baseUrl, { params: httpParams });
   }
 

@@ -30,6 +30,17 @@ public class LoanService {
         return loanRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
+    public Page<LoanResponseDTO> searchLoans(String bookTitle, String userName, Pageable pageable) {
+        if (bookTitle != null && bookTitle.isEmpty()) {
+            bookTitle = null;
+        }
+        if (userName != null && userName.isEmpty()) {
+            userName = null;
+        }
+        return loanRepository.searchLoans(bookTitle, userName, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
     public List<LoanResponseDTO> getActiveLoans() {
         return loanRepository.findByUserIdAndStatusIn(null, List.of("ACTIVE", "OVERDUE"))
                 .stream()

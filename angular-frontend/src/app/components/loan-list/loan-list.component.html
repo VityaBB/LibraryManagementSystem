@@ -9,6 +9,37 @@
 
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Название книги</label>
+          <div class="d-flex gap-2">
+            <input type="text" class="form-control" [(ngModel)]="bookTitleFilter" placeholder="Поиск по названию книги..." (keyup.enter)="applyBookTitleFilter()">
+            <button class="btn btn-primary" (click)="applyBookTitleFilter()">🔍</button>
+            <button *ngIf="appliedBookTitle" class="btn btn-outline-secondary" (click)="resetBookTitleFilter()">✕</button>
+          </div>
+          <small *ngIf="appliedBookTitle" class="text-success">Фильтр: "{{ appliedBookTitle }}"</small>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Читатель</label>
+          <div class="d-flex gap-2">
+            <input type="text" class="form-control" [(ngModel)]="userNameFilter" placeholder="Поиск по читателю..." (keyup.enter)="applyUserNameFilter()">
+            <button class="btn btn-primary" (click)="applyUserNameFilter()">🔍</button>
+            <button *ngIf="appliedUserName" class="btn btn-outline-secondary" (click)="resetUserNameFilter()">✕</button>
+          </div>
+          <small *ngIf="appliedUserName" class="text-success">Фильтр: "{{ appliedUserName }}"</small>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button *ngIf="appliedBookTitle || appliedUserName" class="btn btn-outline-danger w-100" (click)="resetAllFilters()">🔄 Сбросить все фильтры</button>
+        </div>
+      </div>
+      <div *ngIf="appliedBookTitle || appliedUserName" class="mt-2">
+        <span class="badge bg-info text-dark">Активные фильтры: <span *ngIf="appliedBookTitle">Книга: "{{ appliedBookTitle }}"</span><span *ngIf="appliedBookTitle && appliedUserName"> | </span><span *ngIf="appliedUserName">Читатель: "{{ appliedUserName }}"</span></span>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="loading" class="text-center mt-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Загрузка...</span>
@@ -31,7 +62,7 @@
       </thead>
       <tbody>
         <tr *ngIf="loans.length === 0">
-          <td colspan="8" class="text-center text-muted py-3">Нет данных</td>
+          <td colspan="8" class="text-center text-muted py-3">{{ (appliedBookTitle || appliedUserName) ? 'Нет записей, соответствующих фильтрам' : 'Нет данных' }}</td>
         </tr>
         <tr *ngFor="let loan of loans">
           <td>{{ loan.id }}</td>
