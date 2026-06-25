@@ -22,8 +22,12 @@ public class GenreController {
 
     @GetMapping
     public ResponseEntity<Page<GenreResponseDTO>> getAllGenres(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(genreService.getAllGenres(pageable));
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) String name) {
+        System.out.println("📥 Получен запрос с параметрами:");
+        System.out.println("  name: " + name);
+        Page<GenreResponseDTO> genres = genreService.searchGenres(name, pageable);
+        return ResponseEntity.ok(genres);
     }
 
     @GetMapping("/{id}")

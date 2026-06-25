@@ -13,10 +13,17 @@ export class AuthorService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(params?: PageRequest): Observable<PageResponse<Author>> {
+  getAll(params?: PageRequest & { firstName?: string; lastName?: string }): Observable<PageResponse<Author>> {
     let httpParams = new HttpParams()
       .set('page', params?.page?.toString() || '0')
       .set('size', params?.size?.toString() || '10');
+    if (params?.firstName) {
+      httpParams = httpParams.set('firstName', params.firstName);
+    }
+    if (params?.lastName) {
+      httpParams = httpParams.set('lastName', params.lastName);
+    }
+    console.log('📤 HTTP запрос:', this.baseUrl, 'с параметрами:', httpParams.toString());
     return this.http.get<PageResponse<Author>>(this.baseUrl, { params: httpParams });
   }
 

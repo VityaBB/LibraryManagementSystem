@@ -13,10 +13,20 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(params?: PageRequest): Observable<PageResponse<User>> {
+  getAll(params?: PageRequest & { firstName?: string; lastName?: string; phone?: string }): Observable<PageResponse<User>> {
     let httpParams = new HttpParams()
       .set('page', params?.page?.toString() || '0')
       .set('size', params?.size?.toString() || '10');
+    if (params?.firstName) {
+      httpParams = httpParams.set('firstName', params.firstName);
+    }
+    if (params?.lastName) {
+      httpParams = httpParams.set('lastName', params.lastName);
+    }
+    if (params?.phone) {
+      httpParams = httpParams.set('phone', params.phone);
+    }
+    console.log('📤 HTTP запрос:', this.baseUrl, 'с параметрами:', httpParams.toString());
     return this.http.get<PageResponse<User>>(this.baseUrl, { params: httpParams });
   }
 

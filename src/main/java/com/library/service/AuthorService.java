@@ -21,6 +21,20 @@ public class AuthorService {
         return authorRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
+    public Page<AuthorResponseDTO> searchAuthors(String firstName, String lastName, Pageable pageable) {
+        if (firstName != null && firstName.isEmpty()) {
+            firstName = null;
+        }
+        if (lastName != null && lastName.isEmpty()) {
+            lastName = null;
+        }
+        System.out.println("🔍 Поиск авторов с параметрами:");
+        System.out.println("  firstName: " + firstName);
+        System.out.println("  lastName: " + lastName);
+        return authorRepository.searchAuthors(firstName, lastName, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
     public AuthorResponseDTO getAuthorById(Long id) {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Автор не найден"));

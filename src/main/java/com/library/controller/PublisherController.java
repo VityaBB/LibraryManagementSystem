@@ -22,8 +22,12 @@ public class PublisherController {
 
     @GetMapping
     public ResponseEntity<Page<PublisherResponseDTO>> getAllPublishers(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(publisherService.getAllPublishers(pageable));
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) String name) {
+        System.out.println("📥 Получен запрос с параметрами:");
+        System.out.println("  name: " + name);
+        Page<PublisherResponseDTO> publishers = publisherService.searchPublishers(name, pageable);
+        return ResponseEntity.ok(publishers);
     }
 
     @GetMapping("/{id}")

@@ -13,10 +13,14 @@ export class PublisherService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(params?: PageRequest): Observable<PageResponse<Publisher>> {
+  getAll(params?: PageRequest & { name?: string }): Observable<PageResponse<Publisher>> {
     let httpParams = new HttpParams()
       .set('page', params?.page?.toString() || '0')
       .set('size', params?.size?.toString() || '10');
+    if (params?.name) {
+      httpParams = httpParams.set('name', params.name);
+    }
+    console.log('📤 HTTP запрос:', this.baseUrl, 'с параметрами:', httpParams.toString());
     return this.http.get<PageResponse<Publisher>>(this.baseUrl, { params: httpParams });
   }
 

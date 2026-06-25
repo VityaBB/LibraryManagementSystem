@@ -15,6 +15,11 @@ export class AuthorListComponent implements OnInit {
   page = 0;
   totalPages = 0;
   totalElements = 0;
+  
+  firstNameFilter = '';
+  lastNameFilter = '';
+  appliedFirstName = '';
+  appliedLastName = '';
 
   constructor(private authorService: AuthorService) {}
 
@@ -24,8 +29,17 @@ export class AuthorListComponent implements OnInit {
 
   fetchAuthors(): void {
     this.loading = true;
-    this.authorService.getAll({ page: this.page, size: 10 }).subscribe({
+    const params: any = { page: this.page, size: 10 };
+    if (this.appliedFirstName) {
+      params.firstName = this.appliedFirstName;
+    }
+    if (this.appliedLastName) {
+      params.lastName = this.appliedLastName;
+    }
+    console.log('📤 Отправка параметров:', params);
+    this.authorService.getAll(params).subscribe({
       next: (response: PageResponse<Author>) => {
+        console.log('📥 Получен ответ:', response);
         this.authors = response.content;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
@@ -38,6 +52,41 @@ export class AuthorListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyFirstNameFilter(): void {
+    this.appliedFirstName = this.firstNameFilter.trim();
+    this.page = 0;
+    this.fetchAuthors();
+  }
+
+  applyLastNameFilter(): void {
+    this.appliedLastName = this.lastNameFilter.trim();
+    this.page = 0;
+    this.fetchAuthors();
+  }
+
+  resetFirstNameFilter(): void {
+    this.firstNameFilter = '';
+    this.appliedFirstName = '';
+    this.page = 0;
+    this.fetchAuthors();
+  }
+
+  resetLastNameFilter(): void {
+    this.lastNameFilter = '';
+    this.appliedLastName = '';
+    this.page = 0;
+    this.fetchAuthors();
+  }
+
+  resetAllFilters(): void {
+    this.firstNameFilter = '';
+    this.lastNameFilter = '';
+    this.appliedFirstName = '';
+    this.appliedLastName = '';
+    this.page = 0;
+    this.fetchAuthors();
   }
 
   deleteAuthor(id: number): void {

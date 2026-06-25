@@ -9,6 +9,28 @@
 
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Название жанра</label>
+          <div class="d-flex gap-2">
+            <input type="text" class="form-control" [(ngModel)]="nameFilter" placeholder="Поиск по названию жанра..." (keyup.enter)="applyNameFilter()">
+            <button class="btn btn-primary" (click)="applyNameFilter()">🔍</button>
+            <button *ngIf="appliedName" class="btn btn-outline-secondary" (click)="resetNameFilter()">✕</button>
+          </div>
+          <small *ngIf="appliedName" class="text-success">Фильтр: "{{ appliedName }}"</small>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button *ngIf="appliedName" class="btn btn-outline-danger w-100" (click)="resetNameFilter()">🔄 Сбросить фильтр</button>
+        </div>
+      </div>
+      <div *ngIf="appliedName" class="mt-2">
+        <span class="badge bg-info text-dark">Активный фильтр: Название: "{{ appliedName }}"</span>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="loading" class="text-center mt-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Загрузка...</span>
@@ -27,7 +49,7 @@
       </thead>
       <tbody>
         <tr *ngIf="genres.length === 0">
-          <td colspan="4" class="text-center text-muted py-3">Нет данных</td>
+          <td colspan="4" class="text-center text-muted py-3">{{ appliedName ? 'Нет жанров, соответствующих фильтру' : 'Нет данных' }}</td>
         </tr>
         <tr *ngFor="let genre of genres">
           <td>{{ genre.id }}</td>

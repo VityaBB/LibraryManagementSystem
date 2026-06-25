@@ -20,6 +20,24 @@ public class UserService {
         return userRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
+    public Page<UserResponseDTO> searchUsers(String firstName, String lastName, String phone, Pageable pageable) {
+        if (firstName != null && firstName.isEmpty()) {
+            firstName = null;
+        }
+        if (lastName != null && lastName.isEmpty()) {
+            lastName = null;
+        }
+        if (phone != null && phone.isEmpty()) {
+            phone = null;
+        }
+        System.out.println("🔍 Поиск пользователей с параметрами:");
+        System.out.println("  firstName: " + firstName);
+        System.out.println("  lastName: " + lastName);
+        System.out.println("  phone: " + phone);
+        return userRepository.searchUsers(firstName, lastName, phone, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
     public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));

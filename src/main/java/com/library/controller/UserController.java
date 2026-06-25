@@ -22,8 +22,16 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(userService.getAllUsers(pageable));
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String phone) {
+        System.out.println("📥 Получен запрос с параметрами:");
+        System.out.println("  firstName: " + firstName);
+        System.out.println("  lastName: " + lastName);
+        System.out.println("  phone: " + phone);
+        Page<UserResponseDTO> users = userService.searchUsers(firstName, lastName, phone, pageable);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")

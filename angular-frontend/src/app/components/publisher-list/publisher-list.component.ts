@@ -15,6 +15,9 @@ export class PublisherListComponent implements OnInit {
   page = 0;
   totalPages = 0;
   totalElements = 0;
+  
+  nameFilter = '';
+  appliedName = '';
 
   constructor(private publisherService: PublisherService) {}
 
@@ -24,8 +27,14 @@ export class PublisherListComponent implements OnInit {
 
   fetchPublishers(): void {
     this.loading = true;
-    this.publisherService.getAll({ page: this.page, size: 10 }).subscribe({
+    const params: any = { page: this.page, size: 10 };
+    if (this.appliedName) {
+      params.name = this.appliedName;
+    }
+    console.log('📤 Отправка параметров:', params);
+    this.publisherService.getAll(params).subscribe({
       next: (response: PageResponse<Publisher>) => {
+        console.log('📥 Получен ответ:', response);
         this.publishers = response.content;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
@@ -38,6 +47,19 @@ export class PublisherListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyNameFilter(): void {
+    this.appliedName = this.nameFilter.trim();
+    this.page = 0;
+    this.fetchPublishers();
+  }
+
+  resetNameFilter(): void {
+    this.nameFilter = '';
+    this.appliedName = '';
+    this.page = 0;
+    this.fetchPublishers();
   }
 
   deletePublisher(id: number): void {

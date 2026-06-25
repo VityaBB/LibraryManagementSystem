@@ -15,6 +15,9 @@ export class GenreListComponent implements OnInit {
   page = 0;
   totalPages = 0;
   totalElements = 0;
+  
+  nameFilter = '';
+  appliedName = '';
 
   constructor(private genreService: GenreService) {}
 
@@ -24,8 +27,14 @@ export class GenreListComponent implements OnInit {
 
   fetchGenres(): void {
     this.loading = true;
-    this.genreService.getAll({ page: this.page, size: 10 }).subscribe({
+    const params: any = { page: this.page, size: 10 };
+    if (this.appliedName) {
+      params.name = this.appliedName;
+    }
+    console.log('📤 Отправка параметров:', params);
+    this.genreService.getAll(params).subscribe({
       next: (response: PageResponse<Genre>) => {
+        console.log('📥 Получен ответ:', response);
         this.genres = response.content;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
@@ -38,6 +47,19 @@ export class GenreListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyNameFilter(): void {
+    this.appliedName = this.nameFilter.trim();
+    this.page = 0;
+    this.fetchGenres();
+  }
+
+  resetNameFilter(): void {
+    this.nameFilter = '';
+    this.appliedName = '';
+    this.page = 0;
+    this.fetchGenres();
   }
 
   deleteGenre(id: number): void {

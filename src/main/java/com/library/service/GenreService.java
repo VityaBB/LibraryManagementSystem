@@ -20,6 +20,16 @@ public class GenreService {
         return genreRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
+    public Page<GenreResponseDTO> searchGenres(String name, Pageable pageable) {
+        if (name != null && name.isEmpty()) {
+            name = null;
+        }
+        System.out.println("🔍 Поиск жанров с параметрами:");
+        System.out.println("  name: " + name);
+        return genreRepository.searchGenres(name, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
     public GenreResponseDTO getGenreById(Long id) {
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Жанр не найден"));

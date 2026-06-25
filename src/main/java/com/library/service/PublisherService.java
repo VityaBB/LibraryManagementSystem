@@ -20,6 +20,16 @@ public class PublisherService {
         return publisherRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
+    public Page<PublisherResponseDTO> searchPublishers(String name, Pageable pageable) {
+        if (name != null && name.isEmpty()) {
+            name = null;
+        }
+        System.out.println("🔍 Поиск издателей с параметрами:");
+        System.out.println("  name: " + name);
+        return publisherRepository.searchPublishers(name, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
     public PublisherResponseDTO getPublisherById(Long id) {
         Publisher publisher = publisherRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Издатель не найден"));

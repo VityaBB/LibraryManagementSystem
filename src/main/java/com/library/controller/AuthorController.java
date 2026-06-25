@@ -22,8 +22,14 @@ public class AuthorController {
 
     @GetMapping
     public ResponseEntity<Page<AuthorResponseDTO>> getAllAuthors(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(authorService.getAllAuthors(pageable));
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+        System.out.println("📥 Получен запрос с параметрами:");
+        System.out.println("  firstName: " + firstName);
+        System.out.println("  lastName: " + lastName);
+        Page<AuthorResponseDTO> authors = authorService.searchAuthors(firstName, lastName, pageable);
+        return ResponseEntity.ok(authors);
     }
 
     @GetMapping("/{id}")

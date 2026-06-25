@@ -15,6 +15,13 @@ export class UserListComponent implements OnInit {
   page = 0;
   totalPages = 0;
   totalElements = 0;
+  
+  firstNameFilter = '';
+  lastNameFilter = '';
+  phoneFilter = '';
+  appliedFirstName = '';
+  appliedLastName = '';
+  appliedPhone = '';
 
   constructor(private userService: UserService) {}
 
@@ -24,8 +31,20 @@ export class UserListComponent implements OnInit {
 
   fetchUsers(): void {
     this.loading = true;
-    this.userService.getAll({ page: this.page, size: 10 }).subscribe({
+    const params: any = { page: this.page, size: 10 };
+    if (this.appliedFirstName) {
+      params.firstName = this.appliedFirstName;
+    }
+    if (this.appliedLastName) {
+      params.lastName = this.appliedLastName;
+    }
+    if (this.appliedPhone) {
+      params.phone = this.appliedPhone;
+    }
+    console.log('📤 Отправка параметров:', params);
+    this.userService.getAll(params).subscribe({
       next: (response: PageResponse<User>) => {
+        console.log('📥 Получен ответ:', response);
         this.users = response.content;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
@@ -38,6 +57,56 @@ export class UserListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyFirstNameFilter(): void {
+    this.appliedFirstName = this.firstNameFilter.trim();
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+  applyLastNameFilter(): void {
+    this.appliedLastName = this.lastNameFilter.trim();
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+  applyPhoneFilter(): void {
+    this.appliedPhone = this.phoneFilter.trim();
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+  resetFirstNameFilter(): void {
+    this.firstNameFilter = '';
+    this.appliedFirstName = '';
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+  resetLastNameFilter(): void {
+    this.lastNameFilter = '';
+    this.appliedLastName = '';
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+  resetPhoneFilter(): void {
+    this.phoneFilter = '';
+    this.appliedPhone = '';
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+  resetAllFilters(): void {
+    this.firstNameFilter = '';
+    this.lastNameFilter = '';
+    this.phoneFilter = '';
+    this.appliedFirstName = '';
+    this.appliedLastName = '';
+    this.appliedPhone = '';
+    this.page = 0;
+    this.fetchUsers();
   }
 
   deleteUser(id: number): void {
