@@ -16,7 +16,7 @@ export class BookListComponent implements OnInit {
   totalPages = 0;
   totalElements = 0;
   titleFilter = '';
-  yearFilter = '';
+  yearFilter: string = '';
   appliedTitle = '';
   appliedYear = '';
 
@@ -35,8 +35,10 @@ export class BookListComponent implements OnInit {
     if (this.appliedYear) {
       params.publicationYear = Number(this.appliedYear);
     }
+    console.log('📤 Отправка параметров:', params);
     this.bookService.getAll(params).subscribe({
       next: (response: PageResponse<Book>) => {
+        console.log('📥 Получен ответ:', response);
         this.books = response.content;
         this.totalPages = response.totalPages;
         this.totalElements = response.totalElements;
@@ -58,7 +60,7 @@ export class BookListComponent implements OnInit {
   }
 
   applyYearFilter(): void {
-    this.appliedYear = this.yearFilter.trim();
+    this.appliedYear = this.yearFilter.toString().trim();
     this.page = 0;
     this.fetchBooks();
   }

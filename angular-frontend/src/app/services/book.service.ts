@@ -29,6 +29,7 @@ export class BookService {
     if (params?.genreId) {
       httpParams = httpParams.set('genreId', params.genreId.toString());
     }
+    console.log('📤 HTTP запрос:', this.baseUrl, 'с параметрами:', httpParams.toString());
     return this.http.get<PageResponse<Book>>(this.baseUrl, { params: httpParams });
   }
 
