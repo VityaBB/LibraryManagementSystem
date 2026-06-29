@@ -1,0 +1,13 @@
+.git
+.gitignore
+node_modules
+.angular
+.vscode
+.idea
+*.log
+*.md
+.DS_Store
+dist
+out-tsc
+target
+*.iml
